@@ -24,7 +24,7 @@ jobs:
         with:
           packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
 
-      - name: Install dependencies
+      - name: Install npm deps
         run: npm install
 
       - name: Add Android platform
@@ -33,14 +33,17 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Build APK
+      - name: Fix executable
+        run: chmod +x android/gradlew
+
+      - name: Build debug APK
         run: |
           cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: unichat2-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

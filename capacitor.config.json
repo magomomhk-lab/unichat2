@@ -1,8 +1,7 @@
 {
   "appId": "com.magomomhk.unichat2",
   "appName": "UniChat2",
-  "webDir": ".",
-  "bundledWebRuntime": false,
+  "webDir": "www",
   "server": {
     "androidScheme": "https"
   },

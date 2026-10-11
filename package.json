@@ -1,10 +1,9 @@
 {
   "name": "unichat2",
   "version": "1.0.0",
-  "description": "MoonSSS / UniChat2 AI assistant — WebView APK",
+  "description": "MoonSSS / UniChat2 AI assistant",
   "private": true,
   "scripts": {
-    "start": "python3 -m http.server 8000",
     "serve": "python3 serve.py 8000",
     "sync": "cap sync android",
     "build:apk": "cd android && ./gradlew assembleDebug"

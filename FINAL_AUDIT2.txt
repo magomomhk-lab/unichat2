@@ -1,0 +1,67 @@
+═══════════════════════════════════════════════
+  ФИНАЛЬНЫЙ АУДИТ v2 (file-based sha256)
+  2026-10-11T15:32:38Z
+═══════════════════════════════════════════════
+
+[0;36m[1][0m Локальных файлов: 48
+
+[0;36m[2][0m Скачиваю каждый файл с сайта и сравниваю sha256...
+
+  [0;32m✓[0m home.html  (38683 B)
+  [0;32m✓[0m ai.html  (322408 B)
+  [0;32m✓[0m manifest.json  (852 B)
+  [0;32m✓[0m sw.js  (1132 B)
+  [0;32m✓[0m favicon.ico  (270398 B)
+  [0;32m✓[0m assets/js/21st.js  (21657 B)
+  [0;32m✓[0m assets/js/auth.js  (17189 B)
+  [0;32m✓[0m assets/js/supabase.js  (114923 B)
+  [0;32m✓[0m assets/js/to-dos.js  (31182 B)
+  [0;32m✓[0m assets/js/toolCalling.js  (251966 B)
+  [0;32m✓[0m assets/js/subagents.js  (25242 B)
+  [0;32m✓[0m assets/js/proxymodel.js  (98596 B)
+  [0;32m✓[0m assets/js/openrouter.js  (92887 B)
+  [0;32m✓[0m assets/js/aiContextWindow.js  (20208 B)
+  [0;32m✓[0m assets/js/textSelectionMenu.js  (38550 B)
+  [0;32m✓[0m assets/js/MoonSSS-text-selection.js  (11282 B)
+  [0;32m✓[0m assets/js/aiGlassButton.js  (5120 B)
+  [0;32m✓[0m assets/js/aiThinkingAnim.js  (18672 B)
+  [0;32m✓[0m assets/js/aiChangeLog.js  (12243 B)
+  [0;32m✓[0m assets/js/aiInput.js  (94123 B)
+  [0;32m✓[0m assets/js/MoonSphere.js  (13527 B)
+  [0;32m✓[0m assets/js/aiSearchAnim.js  (9423 B)
+  [0;32m✓[0m assets/js/aiAppAnim.js  (17155 B)
+  [0;32m✓[0m assets/js/aiMD.js  (35322 B)
+  [0;32m✓[0m assets/js/mpList.js  (13041 B)
+  [0;32m✓[0m assets/js/ai.js  (860247 B)
+  [0;32m✓[0m assets/js/wrap.js  (25598 B)
+  [0;32m✓[0m assets/css/ai.css  (507883 B)
+  [0;32m✓[0m assets/css/subagents.css  (3959 B)
+  [0;32m✓[0m assets/css/aiAppAnim.css  (6610 B)
+  [0;32m✓[0m assets/css/supabase.css  (36694 B)
+  [0;32m✓[0m assets/css/MoonSSS-text-selection.css  (2900 B)
+  [0;32m✓[0m assets/img/MoonshotAI.png  (234809 B)
+  [0;32m✓[0m assets/img/music.png  (2913210 B)
+  [0;32m✓[0m assets/img/favicon.ico  (270398 B)
+  [0;32m✓[0m assets/svg/claude-color.svg  (1696 B)
+  [0;32m✓[0m index.html  (38683 B)
+  [0;32m✓[0m capacitor.js  (38683 B)
+  [0;32m✓[0m music.html  (190227 B)
+  [0;32m✓[0m video.html  (49567 B)
+  [0;32m✓[0m browser.html  (11816 B)
+  [0;32m✓[0m note.html  (2089582 B)
+  [0;32m✓[0m ide.html  (12572 B)
+  [0;32m✓[0m browser.css  (31474 B)
+  [0;32m✓[0m main.css  (38683 B)
+  [0;32m✓[0m browser.js  (67242 B)
+  [0;32m✓[0m ide.css  (19834 B)
+  [0;32m✓[0m ide.js  (94213 B)
+
+═══════════════════════════════════════════════
+  Локальных файлов:      48
+  [0;32mСовпадают 1:1:[0m         48
+  [0;31mРазличаются:[0m            0
+  [0;36mFallback (нет на сайте):[0m 0
+═══════════════════════════════════════════════
+
+[0;32m[1m✓✓✓ ПОЛНОЕ СОВПАДЕНИЕ ✓✓✓[0m
+Твой дамп идентичен живому сайту.

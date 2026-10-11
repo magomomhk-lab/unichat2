@@ -1,6 +1,6 @@
 import http.server, socketserver, os, sys
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
-ROOT = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "www")
 class H(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         p = self.path.split("?")[0].split("#")[0]
@@ -11,6 +11,6 @@ class H(http.server.SimpleHTTPRequestHandler):
         self.path = "/" + f
         return super().do_GET()
 os.chdir(ROOT)
-print(f"http://127.0.0.1:{PORT}/")
+print(f"http://127.0.0.1:{PORT}/  (root: {ROOT})")
 with socketserver.ThreadingTCPServer(("127.0.0.1", PORT), H) as s:
     s.serve_forever()

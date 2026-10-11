@@ -1,5 +1,8 @@
+node_modules/
+android/
+.gradle/
 *.log
-parity_report.txt
-FINAL_AUDIT*.txt
+*.apk
+*.keystore
 __pycache__/
 .DS_Store
