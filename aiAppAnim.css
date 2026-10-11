@@ -1,0 +1,272 @@
+/* ============================================================
+   aiAppAnim.css — Thinking Orbs Artifact & App Pill Design
+   Strict Linear/Vercel Dark/Light Glassmorphism
+============================================================ */
+
+/* Контейнер интерактивного пилла создания артефакта */
+.thinking-orb-pill,
+.artifact-thinking-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 54px;
+  padding: 5px 20px 5px 6px;
+  border-radius: 9999px;
+  background: rgba(26, 26, 26, 0.65);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 0 40px 0 rgba(255, 255, 255, 0.015),
+    0 10px 28px -4px rgba(0, 0, 0, 0.45);
+  margin: 10px 0;
+  user-select: none;
+  -webkit-user-select: none;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Исключаем появление мигающего курсора стриминга на капсуле */
+.thinking-orb-pill::after,
+.artifact-thinking-pill::after {
+  content: none !important;
+  display: none !important;
+}
+
+.thinking-orb-pill:hover,
+.artifact-thinking-pill:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 0 48px 0 rgba(255, 255, 255, 0.025),
+    0 14px 36px -4px rgba(0, 0, 0, 0.55);
+}
+
+/* Светлая тема */
+html[data-theme="light"] .thinking-orb-pill,
+html[data-theme="light"] .artifact-thinking-pill {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+    inset 0 0 30px 0 rgba(0, 0, 0, 0.01),
+    0 10px 24px -4px rgba(15, 23, 42, 0.08);
+}
+
+html[data-theme="light"] .thinking-orb-pill:hover,
+html[data-theme="light"] .artifact-thinking-pill:hover {
+  border-color: rgba(15, 23, 42, 0.2);
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+    0 14px 32px -4px rgba(15, 23, 42, 0.12);
+}
+
+/* Слот канваса сферы */
+.thinking-orb-slot,
+.artifact-orb-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+.thinking-orb-slot canvas,
+.artifact-orb-slot canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 48px;
+  max-height: 48px;
+  display: block;
+  border-radius: 50%;
+}
+
+/* Текстовый блок */
+.thinking-orb-content,
+.artifact-thinking-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.thinking-orb-label,
+.artifact-thinking-label {
+  font-family: var(--font-app, system-ui, -apple-system, sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: rgba(248, 250, 252, 0.92);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+html[data-theme="light"] .thinking-orb-label,
+html[data-theme="light"] .artifact-thinking-label {
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.thinking-orb-sub,
+.artifact-thinking-sub {
+  font-family: var(--font-app, system-ui, -apple-system, sans-serif);
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--text-dim, rgba(148, 163, 184, 0.8));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Адаптивность для смартфонов: точные размеры и предотвращение выхода за границу баббла */
+@media (max-width: 640px) {
+  .thinking-orb-pill,
+  .artifact-thinking-pill {
+    gap: 10px;
+    min-height: 46px;
+    padding: 4px 14px 4px 5px;
+    margin: 8px 0;
+  }
+
+  .thinking-orb-slot,
+  .artifact-orb-slot {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+  }
+
+  .thinking-orb-slot canvas,
+  .artifact-orb-slot canvas {
+    max-width: 38px;
+    max-height: 38px;
+  }
+
+  .thinking-orb-label,
+  .artifact-thinking-label {
+    font-size: 13px;
+  }
+
+  .thinking-orb-sub,
+  .artifact-thinking-sub {
+    font-size: 10.5px;
+  }
+}
+
+@media (max-width: 380px) {
+  .thinking-orb-pill,
+  .artifact-thinking-pill {
+    gap: 7px;
+    min-height: 40px;
+    padding: 3px 10px 3px 4px;
+    margin: 6px 0;
+  }
+
+  .thinking-orb-slot,
+  .artifact-orb-slot {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  .thinking-orb-slot canvas,
+  .artifact-orb-slot canvas {
+    max-width: 32px;
+    max-height: 32px;
+  }
+
+  .thinking-orb-label,
+  .artifact-thinking-label {
+    font-size: 12px;
+  }
+
+  .thinking-orb-sub,
+  .artifact-thinking-sub {
+    font-size: 10px;
+  }
+}
+
+/* Мобильная производительность: исключение троттлинга blur на смартфонах */
+@media (max-width: 768px),
+(pointer: coarse) and (hover: none) {
+  .thinking-orb-pill,
+  .artifact-thinking-pill {
+    background: var(--panel-solid, #18181b) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  html[data-theme="light"] .thinking-orb-pill,
+  html[data-theme="light"] .artifact-thinking-pill {
+    background: var(--panel-solid, #ffffff) !important;
+  }
+}
+
+/* Кастомизация экрана Live Preview Boot */
+.hp-boot-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 28px 8px 10px;
+  border-radius: 9999px;
+  background: rgba(20, 20, 24, 0.72);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 16px 40px rgba(0, 0, 0, 0.6);
+  margin-bottom: 24px;
+}
+
+.hp-boot-orb-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+}
+
+.hp-boot-orb-slot canvas {
+  width: 64px !important;
+  height: 64px !important;
+  display: block;
+}
+
+.hp-boot-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.hp-boot-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f8fafc;
+  letter-spacing: -0.01em;
+}
+
+.hp-boot-sub {
+  font-size: 12.5px;
+  color: var(--text-dim, #94a3b8);
+}

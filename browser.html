@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="browser.css" />
+  </head>
+  <body>
+    <!-- index.html -->
+    <!doctype html>
+    <html lang="ru">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Браузер</title>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/cyrillic-400.css"
+        />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/cyrillic-500.css"
+        />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/cyrillic-600.css"
+        />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/cyrillic-700.css"
+        />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5/cyrillic-400.css"
+        />
+        <link rel="stylesheet" href="main.css" />
+      </head>
+      <body>
+        <div id="app">
+          <!-- Вкладки -->
+          <div id="tabstrip">
+            <button
+              class="strip-arrow"
+              id="stripLeft"
+              title="Прокрутить вкладки влево"
+            >
+              <svg class="ic" viewBox="0 0 24 24">
+                <path d="M14.5 6l-6 6 6 6" />
+              </svg>
+            </button>
+            <div id="tabs"></div>
+            <button
+              class="strip-arrow"
+              id="stripRight"
+              title="Прокрутить вкладки вправо"
+            >
+              <svg class="ic" viewBox="0 0 24 24">
+                <path d="M9.5 6l6 6-6 6" />
+              </svg>
+            </button>
+            <button id="newTab" title="Новая вкладка (Ctrl+T)">
+              <svg class="ic" viewBox="0 0 24 24">
+                <path d="M12 5.5v13M5.5 12h13" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Панель навигации -->
+          <div id="toolbar">
+            <div class="nav-btns">
+              <button class="tbtn" id="backBtn" title="Назад (Alt+←)">
+                <svg class="ic" viewBox="0 0 24 24">
+                  <path d="M15 5l-7 7 7 7" />
+                </svg>
+              </button>
+              <button class="tbtn" id="fwdBtn" title="Вперёд (Alt+→)">
+                <svg class="ic" viewBox="0 0 24 24">
+                  <path d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+              <button class="tbtn" id="reloadBtn" title="Обновить (F5)">
+                <svg class="ic" viewBox="0 0 24 24">
+                  <path d="M20 12a8 8 0 1 1-2.34-5.66" />
+                  <path d="M20 4v4.5h-4.5" />
+                </svg>
+              </button>
+            </div>
+
+            <div id="addrbox">
+              <span id="addrIcon"></span>
+              <input
+                id="addr"
+                type="text"
+                spellcheck="false"
+                autocomplete="off"
+                placeholder="Поиск или адрес сайта"
+              />
+              <div id="dlWrap">
+                <svg id="dlRing" viewBox="0 0 44 44">
+                  <circle class="track" cx="22" cy="22" r="20" />
+                  <circle class="prog" id="ringProg" cx="22" cy="22" r="20" />
+                </svg>
+                <button id="dlBtn" title="Загрузки">
+                  <svg class="ic" viewBox="0 0 24 24">
+                    <path d="M12 4v11m0 0 4.2-4.2M12 15l-4.2-4.2M5 19.5h14" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Контент -->
+          <main id="content">
+            <section id="homeView">
+              <div class="home-inner">
+                <div class="engine-row" id="engineRow"></div>
+
+                <div class="search-shell" id="searchShell">
+                  <div class="search-bar">
+                    <span class="s-ico"
+                      ><svg class="ic" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="M20.5 20.5l-4.2-4.2" /></svg
+                    ></span>
+                    <input
+                      id="searchInput"
+                      type="text"
+                      autocomplete="off"
+                      spellcheck="false"
+                      placeholder="Поиск в интернете"
+                    />
+                    <button id="searchClear" title="Очистить" hidden>
+                      <svg class="ic" viewBox="0 0 24 24">
+                        <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div id="searchDrop" hidden></div>
+                </div>
+
+                <div class="cards-row" id="pinsGrid"></div>
+
+                <br />
+                <h2 class="home-h">Подсказки</h2>
+                <div class="cards-row" id="recentGrid"></div>
+
+                <h2 class="home-h">Новости для вас</h2>
+                <div class="news-grid" id="newsGrid"></div>
+              </div>
+            </section>
+
+            <aside id="splitPane">
+              <div class="split-bar">
+                <span id="splitUrl"></span>
+                <button id="splitClose" title="Закрыть разделённый экран">
+                  <svg class="ic" viewBox="0 0 24 24">
+                    <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />
+                  </svg>
+                </button>
+              </div>
+              <iframe id="splitFrame"></iframe>
+            </aside>
+          </main>
+        </div>
+
+        <!-- Панель загрузок -->
+        <div id="dlPanel" hidden>
+          <div class="dl-head">
+            <span>Загрузки</span>
+            <div class="hbtns">
+              <button class="hbtn" id="dlSettings" title="Настройки загрузок">
+                <svg class="ic" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="3.2" />
+                  <path
+                    d="M12 3.6v2.6M12 17.8v2.6M3.6 12h2.6M17.8 12h2.6M6 6l1.8 1.8M16.2 16.2 18 18M18 6l-1.8 1.8M7.8 16.2 6 18"
+                  />
+                </svg>
+              </button>
+              <button class="hbtn" id="dlClose" title="Закрыть">
+                <svg class="ic" viewBox="0 0 24 24">
+                  <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div id="dlSettingsBox" hidden>
+            <label class="s-lbl">Папка для загрузок по умолчанию</label>
+            <select id="dlFolderSel">
+              <option value="downloads">Загрузки</option>
+              <option value="documents">Документы</option>
+              <option value="desktop">Рабочий стол</option>
+              <option value="custom">Другая папка…</option>
+            </select>
+            <input
+              id="dlFolderCustom"
+              type="text"
+              placeholder="C:\Users\You\Моя папка"
+              hidden
+            />
+            <label class="chk"
+              ><input type="checkbox" id="dlAsk" /> Спрашивать, куда
+              сохранять</label
+            >
+          </div>
+          <div id="dlList"></div>
+          <div id="dlEmpty" hidden>
+            <span
+              >Пока нет загрузок.<br />«Сохранить ссылку как…» — через ПКМ по
+              ссылке.</span
+            >
+            <button id="dlTest">Скачать тестовый файл</button>
+          </div>
+          <div class="dl-foot" id="dlFoot" hidden>
+            <button id="dlClear">Очистить завершённые</button>
+          </div>
+        </div>
+
+        <!-- Контекстные меню -->
+        <div id="ctxMenu" hidden></div>
+        <div id="ctxSub" hidden></div>
+        
+        <!-- Подменю перевода -->
+        <div id="translateSub" hidden>
+          <div class="ctx-sub-head">
+            <input type="text" id="translateLangSearch" placeholder="Поиск языка..." autocomplete="off">
+          </div>
+          <div id="translateLangList" class="ctx-sub-list"></div>
+        </div>
+
+        <!-- Панель перевода -->
+        <div id="translatePanel" class="translate-panel" hidden>
+          <div id="tpHeader" class="tp-header">
+            <span class="tp-title">
+              <svg class="ic" viewBox="0 0 24 24"><path d="M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6"/></svg>
+              Перевод
+            </span>
+            <div class="tp-actions">
+              <button class="hbtn" id="tpExpand" type="button" title="Развернуть">
+                <svg class="ic" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+              </button>
+              <button class="hbtn" id="tpClose" type="button" title="Закрыть">
+                <svg class="ic" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="tp-body">
+            <div id="tpOriginal" class="tp-original"></div>
+            <div class="tp-divider"></div>
+            <div id="tpResult" class="tp-result"></div>
+          </div>
+        </div>
+
+        <!-- Просмотр кода -->
+        <div id="codeDrawer" hidden>
+          <div class="drawer-head">
+            <span id="codePath"></span>
+            <span class="sp"></span>
+            <button class="hbtn" id="codeCopy" title="Скопировать код">
+              <svg class="ic" viewBox="0 0 24 24">
+                <rect x="9" y="9" width="11" height="11" rx="2" />
+                <path
+                  d="M5.5 14.5A1.5 1.5 0 0 1 4 13V5.5A1.5 1.5 0 0 1 5.5 4H13a1.5 1.5 0 0 1 1.5 1.5"
+                />
+              </svg>
+            </button>
+            <button class="hbtn" id="codeClose" title="Закрыть">
+              <svg class="ic" viewBox="0 0 24 24">
+                <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />
+              </svg>
+            </button>
+          </div>
+          <pre id="codePre"></pre>
+        </div>
+
+        <!-- Модалка добавления сайта -->
+        <div id="modal" hidden>
+          <form class="modal-card" id="addForm">
+            <h3>Добавить сайт</h3>
+            <label class="field"
+              >Адрес сайта
+              <input
+                id="siteUrl"
+                type="text"
+                placeholder="example.com/product"
+                autocomplete="off"
+              />
+            </label>
+            <label class="field"
+              >Название
+              <input
+                id="siteName"
+                type="text"
+                placeholder="Мой сайт"
+                autocomplete="off"
+              />
+            </label>
+            <div class="mrow">
+              <button type="button" class="btn" id="modalCancel">Отмена</button>
+              <button type="submit" class="btn primary">Добавить</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="toast"></div>
+
+        <script src="browser.js"></script>
+      </body>
+    </html>
+  <script src="wrap.js"></script>
+</html>

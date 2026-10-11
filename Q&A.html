@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Answer | Встроенный ИИ</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#050505">
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --surface-color: #222222;
+            --grid-color: hsla(0, 0%, 100%, 0.04);
+            --primary: #f4f4f5;
+            --secondary: #a1a1aa;
+            --silver-accent: #d4d4d8;
+            --accent: #93c5fd;
+            --glass-bg: hsla(0, 0%, 13%, 0.65);
+            --glass-border: hsla(0, 0%, 100%, 0.08);
+            --glass-border-focus: hsla(0, 0%, 100%, 0.22);
+            --ease-out-cubic: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--primary);
+            min-height: 100vh;
+            min-height: 100dvh; /* dvh решает проблему с отрезанием низа на мобильных браузерах */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Профессиональная сетка на фоне с градиентным затуханием */
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+            mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+            -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+            z-index: -1;
+        }
+
+        /* Главный контейнер */
+        .main-container {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 15vh;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: margin-top 0.5s ease;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            margin-bottom: 20px;
+            background: linear-gradient(180deg, #fff, #777);
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        p.subtitle {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        /* Бар с вопросами (Suggestions) */
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 40px;
+            width: 100%;
+        }
+
+        .suggestion-btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--secondary);
+            padding: 12px 20px;
+            border-radius: 100px;
+            font-size: 14px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-btn:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Поле ввода */
+        .input-wrapper {
+            width: 100%;
+            position: relative;
+            background: #000;
+            border-radius: 16px;
+            padding: 4px;
+            box-shadow: 0 0 0 1px var(--glass-border), 0 20px 40px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper:focus-within {
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.3), 0 0 30px rgba(255,255,255,0.05);
+        }
+
+        textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-size: 16px;
+            padding: 16px 60px 16px 20px;
+            resize: none;
+            outline: none;
+            min-height: 60px;
+            line-height: 1.5;
+            overflow: hidden;
+        }
+
+        textarea::placeholder {
+            color: #555;
+        }
+
+        .send-btn {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            background: white;
+            color: black;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .send-btn:hover {
+            background: #e0e0e0;
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Контейнер ответа */
+        .response-container {
+            width: 100%;
+            margin-top: 40px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            line-height: 1.7;
+            font-size: 16px;
+            color: #e4e4e7;
+        }
+
+        .response-container.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .response-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: white;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 15px;
+        }
+
+        .cost-info {
+            font-size: 12px;
+            color: #71717a;
+            margin-top: 20px;
+            text-align: right;
+            border-top: 1px dashed var(--glass-border);
+            padding-top: 10px;
+        }
+
+        /* Анимация загрузки */
+        .loader {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Стили для Markdown элементов */
+    .response-container p {
+        margin-bottom: 15px;
+    }
+    .response-container p:last-child {
+        margin-bottom: 0;
+    }
+    .response-container ul, .response-container ol {
+        margin-left: 20px;
+        margin-bottom: 15px;
+    }
+    .response-container li {
+        margin-bottom: 5px;
+    }
+    
+    /* Стили для инлайн-кода (одинарные кавычки ` `) */
+    .response-container code {
+        font-family: monospace;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: #93c5fd;
+        font-size: 0.9em;
+    }
+
+    /* Блоки кода от Highlight.js */
+    .response-container pre {
+        background: #0d0d0d !important; /* Очень темный фон для блоков кода */
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        padding: 0;
+        margin: 15px 0;
+        overflow: hidden;
+    }
+    
+    .response-container pre code {
+        display: block;
+        padding: 15px;
+        background: transparent !important;
+        color: #e4e4e7;
+        overflow-x: auto;
+    }
+
+    /* === Адаптация под телефоны и узкие экраны === */
+    @media (max-width: 768px) {
+            .main-container {
+                margin-top: 8vh;
+                padding: 0 15px;
+            }
+            h1 {
+                font-size: 2.3rem; /* Уменьшаем огромный заголовок */
+                margin-bottom: 10px;
+            }
+            p.subtitle {
+                font-size: 0.95rem;
+                margin-bottom: 25px;
+            }
+            .suggestions {
+                gap: 8px;
+            }
+            .suggestion-btn {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+            .response-container {
+                padding: 20px 15px; /* Уменьшаем рамки ответа на телефоне */
+                font-size: 15px; /* Чуть уменьшаем шрифт для читаемости */
+            }
+            /* На телефонах сдвигаем ответ выше, чтобы влезало больше текста */
+            .response-container.visible ~ .main-container {
+                margin-top: 3vh;
+            }
+        }
+
+    </style>
+    <!-- Подключение Marked.js для парсинга Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Подключение Highlight.js для подсветки кода -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body>
+
+    <div class="grid-background"></div>
+
+    <main class="main-container" id="main">
+        <h1>Ответы.</h1>
+        <p class="subtitle">Ваш личный встроенный ИИ-помощник</p>
+
+        <!-- Встроенные приветственные вопросы -->
+        <div class="suggestions">
+            <button class="suggestion-btn" onclick="fillAndSend('Расскажи о себе. Для чего ты здесь?')">Кто ты?</button>
+            <button class="suggestion-btn" onclick="fillAndSend('Как работать с модулем AI Core?')">Как работать с модулем AI Core?</button>
+            <button class="suggestion-btn" onclick="fillAndSend('Чем модуль Agent отличается от AI Core?')">Чем модуль "Agent" отличается от "AI Core"?</button>
+            <button class="suggestion-btn" onclick="fillAndSend('Как пользоваться модулем Music?')">Как пользоваться модулем Music?</button>
+        </div>
+
+        <div class="input-wrapper">
+            <textarea id="prompt" rows="1" placeholder="Задайте свой вопрос..." oninput="autoResize(this)" onkeydown="checkEnter(event)"></textarea>
+            <button class="send-btn" id="send-btn" onclick="askAI()">
+                <svg id="send-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+                <div class="loader" id="loader"></div>
+            </button>
+        </div>
+
+        <div class="response-container" id="response-container">
+            <div class="response-header">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2Z"></path><path d="M12 12 2.32 15.21"></path><path d="M12 12 21.68 15.21"></path></svg>
+                Ответ ИИ
+            </div>
+            <div id="response-content"></div>
+            <!-- Стоимость убрана, так как модель бесплатная -->
+        </div>
+    </main>
+
+    <script>
+        // === КОНФИГУРАЦИЯ ПРОВАЙДЕРА AI (ГОТОВА К ПОДКЛЮЧЕНИЮ НОВОГО API) ===
+        const PROVIDER_CONFIG = {
+            endpoint: "", // URL нового провайдера
+            apiKey: "",   // Ключ доступа
+            model: "",    // Идентификатор целевой модели
+            isReady() {
+                return Boolean(this.endpoint && this.apiKey);
+            }
+        };
+        
+        const SYSTEM_PROMPT = `Ты — профессиональный, дружелюбный и лаконичный ИИ-помощник в приложении UniChat. 
+        Твоя задача — давать точные и полезные ответы. 
+        Отвечай красиво, используй списки, если это уместно. Не придумывай факты. Если не знаешь — так и скажи.
+        Информация о UniChat:
+        Unichat — это целая экосистема, состоящая из различных модулей:
+        # Ai Core
+### Что такое Ai Core и как с ним работать?
+**Ai Core** — это одна из функций UniChat. В нём собраны передовые искусственные интеллекты от различных компаний, начиная от **OpenAI, Anthropic или DeepSeek**, заканчивая **MiniMax и прочие компании** для предоставления персональной помощи конкретному пользователю.
+### История создания Ai Core
+**Ai Core** — это первый сервис, разработанный на UniChat. Он был разработан в марте 2026 года в качестве простого чат-бота, который быстро перерос в полноценный суперпроект. Он был разработан на телефоне в приложении ***TrebEdit*** после чего разработка продолжилась в IDE (это общее понятие среды разработки, в котором пишут код) Visual Studio Code.
+### Возможности AI Core
+AI Core больше не просто очередной чат с ботом. В этом модуле можно редактировать шаблоны Агентских Цепочек. То есть помимо того, что в нём можно общаться, к примеру, с моделью GPT-4o (от OpenAI), так ещё и можно совместить эти самые ИИ модели в одну агентскую цепочку.
+По умолчанию в агентскую цепочку встроены следующие цепочки, не поддающиеяся редактированию на стороне пользователей:
+1. **Имя:** Исследователь;
+**Задача:** его смысл в том, чтобы заниматься поиском какой-либо информации из заданого пользователем запроса;
+**Совет: Не ставьте в качестве исследователя устаревшие модели, т.к. они могут выдавать неактуальную информацию.** ***<-- ЭТО ВАЖНО!***
+
+2. **Имя:** Аналитик;
+**Задача:** он служит для того, чтобы *анализировать* информацию, переданную со стороны *исследователя*;
+**Важное Замечание:** Он не служит поисковой моделью и лишь *анализирует* переданный результат. Это значит следующее:
+В случае если **Исследователь** выдал некорректный результат, **Аналитик** соответсвенно проанализирует это сообщение и выдаст неверный/устаревший ответ, который может не соответсвовать реальности. **Необходимо проверять важную информацию**;
+
+3. **Имя:** Специалист (пользователь сам настраивает имя);
+**Задача:** У данного агента нет задачи до тех пор, пока пользователь сам его не выберет. Этот параметр в AI Core называется "Роль". То есть это **подимя** данного агента — как именно к нему будут обращаться остальные агенты полной цепочки. Оно влияет на отношение ИИ к данном специалисту,
+так как, если, к примеру, вы назовете Специалиста "Переводчик", то Критик (опишу ниже) не будет придираться к ответу, написанном, например, на английском языке, если пользователь запросил ответ на русском.
+Критик будет думать что-типо того: "Пользователь задал запрос на русском языке, но данный специалист оформил ответ на английском. Его роль "Переводчик", значит всё идет по плану. Идет поиск других уязвимостей...".
+А если вы назовете переводчика, к примеру, Саня, то Критик не поймет почему Специалист перевел всё на английский, сочтёт это за ошибку и уже **АНАЛИТИКА** (да, не специалиста), попросит испрпавить ответ перед раскрытием пользователю;
+**Важное Замечание:** Специалистов может быть хоть миллионы в агенсткой цепочке. У программиста (или человека, который понимает что такое localstorage) появляется логический вопрос: "А как тогда в локальном хранилище из пяти мегабайт хватило бы места для сохранения информации в таком объёмном потоке?" — ответ прост.
+В таком случае хранение данных переходит из LocalStorage в IndexedDB, где хранятся гигабайты данных на стороне пользователя.
+
+4. **Имя:** Критик;
+**Задача:** Его имя прямо отражает его роль в Агентской цепочке. Он критикует информацию, полученную от аналитика (но в том сулчае, если вы настроили Специалиста, то он будет проверять его информацию, а не Аналитика).
+Чтобы экономить ваши токены, в него встроено ограничение по количеству вычислений возможных уязимостей в ответе AI и это число равно 5 (иногда может быть и шесть, если попросил пользователь или если ошибок уж явно больше положенного порога);
+
+5. **Имя:** Спикер;
+**Задача:** Он просто красиво оформляет ответ, полученный от Аналитика (или если вы включили в Агентскую цепочку Специалиста, тогда Спикер проверяет его ответ);
+**Совет (Опциально):** Не ставьте на эту роль сильно дорогую модель, так как он ничем толковым не занимается. Его роль просто в том, чтобы вашим замечательным глазам было приятно.
+Обычно я ставлю на его место бесплатную модель *Trinity Large Preview (free)*, но если хотите, можете поставить модель OpenAI
+
+# Agent
+Модуль **Agent** позволяет создавать автономных ассистентов, которые могут выполнять задачи в фоновом режиме.
+В отличае от модуля **AI Core**, **Agent** — *более гибкая экосистема* для обращения к сторонним источникам.
+Если в **AI Core** есть готовые пресеты от разработчика (Исследователь, Аналитик и т.п.), то в модуле **Agent** вы сами настраиваете Агентскую цеполчку.
+Если говорить по-простому, то в данном модуле нет никаких "Исследователей" или "Критиков". Там есть лишь кнопка "Создать Специаслиста".
+Это значит следующее:
+
+* Более гибкая настройка Цепочек Рассуждения (Chains of Thought) — вместо того, чтобы добалять своих агентов поверх встроенных, вы сами создаете каждую цепочку.
+
+* Вы сами называете каждого агента и даете ему задачу. Как и в блоке AI Core, вы также можете выбрать модели, которые будут вести заданную роль.
+
+### История чатов
+История чатов хранится на IndexedDB. Почему? Потому что модуль Agent ориентирован именно под бошльшие базы знаний и требует больше пямяти, чем может позволить localstorage.
+Тас нет кнопки удаления определенного сообщения или редактирования ответов.
+# Music
+В этом отделе встроен музыкальный плеер с расширенным эквалайзером и интеграцией с YouTube Music. На нём можно слушать свои локальные песни или подключить API с YouTube Music.
+1. Что такое YouTube Data API v3
+Это официальный API, который даёт доступ к видео, каналам, плейлистам, подпискам, загрузке роликов и т.п. для обычного YouTube.
+
+Им можно пользоваться из веба, мобилки или сервера, но YouTube Music‑функции он почти не покрывает (они отдельные и не открыты официально).
+
+2. Как включить API и получить ключ
+Всё делается через Google Cloud Console.
+
+Зайди в Google Cloud Console (нужен Google‑аккаунт).
+
+Создай новый проект (или выбери существующий).
+
+В левом меню открой “APIs & Services” → “Library”.
+
+В поиске найди “YouTube Data API v3”, открой и нажми Enable (Включить).
+
+После включения зайди в “APIs & Services” → “Credentials” и нажми Create credentials → API key — появится ключ, который ты будешь использовать в запросах.
+3. Ограничения и квоты
+У API есть суточная квота — по умолчанию 10 000 единиц в день, разные методы стоят по‑разному (например, search.list, videos.list и т.п.).
+
+При превышении нужно либо оптимизировать запросы, либо подавать запрос на увеличение квоты через Google Cloud Console.
+
+1. Перейди в Google Cloud Console
+https://console.cloud.google.com/
+
+2. Создай проект (или выбери существующий)
+
+Вверху жми на название проекта → "Новый проект" → придумай название → "Создать"
+
+3. Включи YouTube Data API v3
+
+Меню → "API и сервисы" → "Библиотека"
+
+В поиске введи YouTube Data API v3
+
+Кликни на него → "Включить"
+
+4. Получи API-ключ
+
+Меню → "API и сервисы" → "Учётные данные"
+
+Нажми "Создать учётные данные" → "Ключ API"
+
+Ключ сразу появится — скопируй его и вставь в плеер. YouTube Music заработает.
+
+# Note
+Сервис **Note** — ваше умное пространство для хранения заметок. Поддерживает Markdown по умолчанию!
+
+Вы можете выделять текст \`вот так\`, создавать таблицы и списки.
+
+# Google Browser
+Встроенный модуль **Google Browser** позволяет ИИ и пользователям искать информацию в интернете напрямую из интерфейса UniChat.
+
+> **Важно:** Запросы фильтруются на предмет безопасности (SafeSearch включен по умолчанию).
+
+# SearX Browser
+**SearX Browser** — это метапоисковый движок, ориентированный на конфиденциальность.
+
+Он агрегирует результаты из более чем 70 поисковых систем, при этом **не отслеживая** ваши данные.
+
+### Преимущества:
+* Полная анонимность.
+* Отсутствие профилирования (нет фильтр-пузыря).
+* Открытый исходный код.
+
+\`\`\`yaml
+# searx_config.yml
+search:
+  safe_search: 1
+  autocomplete: "duckduckgo"
+server:
+  port: 8080
+  bind_address: "127.0.0.1"
+\`\`\`
+
+# Лицензии Приложения
+**UniChat** — Это лицензированное приложение.
+
+Запрещается какой либо вид копирования дизайна, инициала приложения или коммерчиское использование без соглашения автора.
+
+### Контактные Данные Автора:
+<div style="margin-bottom: 15px; padding: 12px; background: hsla(217, 91%, 60%, 0.08); border-left: 3px solid #3b82f6; border-radius: 4px;">
+                            <strong style="color: #93c5fd; display: block; margin-bottom: 4px;">Email:</strong>
+                            Почта автора: <a href="mailto:ksyr2204@gmail.com" target="_blank" style="color: var(--primary); text-decoration: underline;">ksyr2204@gmail.com</a>.
+                        </div>
+<div style="margin-bottom: 15px; padding: 12px; background: hsla(217, 91%, 60%, 0.08); border-left: 3px solid #3b82f6; border-radius: 4px;">
+                            <strong style="color: #93c5fd; display: block; margin-bottom: 4px;">Программный код:</strong>
+                            Лицензировано по <a href="https://github.com/LaDarkless/UniChat2/blob/master/LICENSE" target="_blank" style="color: var(--primary); text-decoration: underline;">MIT License</a>.
+                        </div>
+
+                        ### Цели Создания
+Автор пресследовал цель не простого "чат-бота", а именно **мультиприложение**, полноценноой **комплексной экосистемы** где есть абсолютно **всё**, чем пользуются в повседнгевной жизни.
+Если когда-то приходилось выключать одно приложение и входить в **другое**, то здесь уже такое вовсе не нужно.
+В приложении ***UniChat*** можно переходить из одного приложение чат-бота или блокнота *сразу* во **встроенный** браузер и наоборот.
+### Для Чего Вообще Нужен UniChat?
+**UniChat** — это мир логики и построения верных промптов для программистов и мир простой и полезной помощи в повседневных вещах для простых обывателей.
+Он поможет вам с повседневными вещами и сложными документами (AI Core).
+### Минусы и Плюсы
+Важен также и тот факт, что ваши данные хранятся только на вашем устройстве, а это значит следующее:
+1. Ваши данные никто не сможет украсть, поскольку они не хранятся в коде данного сервиса. В случае взлома или утечке данных ваши данные **НЕ ПОПАДУТ В СЕТЬ**, поскольку их нет на сервере и злоумышленники смогут украсть лишь код сайта, а не данные, которые вы сюда вносите.
+
+2. В случае потери данного приложения **"UniChat"**, вы также потеряете данные, которые были на нем записаны.
+
+3. Данное приложение находится на этапе тестирования (BETA-TEST), а это значит, что расположение кнопок и/или старые функции могут быть временно **перенесены, удалены или скрыты** на данном этапе тестирования. В случае каких-либо вопросов, обращайтесь по почте разработчика в блоке вопросв о Лицензии ***"LICENSE"***.
+
+### Пробелы в защите
+Приложение ***UniChat*** было написано лишь *одним* разработчиком и из этого выходит, что:
+1. **Влияет на частоту обновлений**. Если целая команда, к примеру, из шести человек, выпускает обновления раз месяц, то одному программисту потребуется явно больше времени.
+
+2. **Наличе Бета-тестеров и Дизайнеров**. Также становится ясно, что KSyR не только разработчик, но ещё и бета-тестер и дизайнер, что достаточно серьёзно влияет на скорость обновления UniChat.
+
+---
+
+<h2>АВТОР НЕ НЕСЁТ ОТВЕТСВЕННОСТЬ ЗА ПОТЕРЮ ВАШИХ ДАННЫХ! БУДЬТЕ БДИТЕЛЬНЫ И СОХРАНЯЙТЕ ВАЖНУЮ ИНФОРМАЦИИ НА ВАШЕМ УСТРОЙСТВЕ! СПАСИБО.</h2>
+`;
+    
+        // 1. СОЗДАЕМ МАССИВ ПАМЯТИ (ИСТОРИЮ ДИАЛОГА)
+let chatHistory = [
+{ role: "system", content: SYSTEM_PROMPT }
+];
+
+        // === НАСТРОЙКА MARKDOWN И ПОДСВЕТКИ КОДА ===
+    marked.setOptions({
+        breaks: true, // Переносы строк как в оригинальном тексте
+        highlight: function (code, lang) {
+            if (lang && hljs.getLanguage(lang)) {
+                // Если нейросеть указала язык и он поддерживается
+                return hljs.highlight(code, { language: lang }).value;
+            } else {
+                // Если язык не указан - АВТООПРЕДЕЛЕНИЕ
+                return hljs.highlightAuto(code).value;
+            }
+        }
+    });
+        
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+    
+        function checkEnter(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                askAI();
+            }
+        }
+    
+        function fillAndSend(text) {
+            const promptInput = document.getElementById('prompt');
+            promptInput.value = text;
+            autoResize(promptInput);
+            askAI();
+        }
+    
+        async function askAI() {
+            const promptInput = document.getElementById('prompt');
+            const prompt = promptInput.value.trim();
+            const sendBtn = document.getElementById('send-btn');
+            const sendIcon = document.getElementById('send-icon');
+            const loader = document.getElementById('loader');
+            const responseContainer = document.getElementById('response-container');
+            const responseContent = document.getElementById('response-content');
+    
+            if (!prompt) return;
+            
+            // Проверка готовности целевого провайдера
+            if (!PROVIDER_CONFIG.isReady()) {
+                responseContainer.classList.add('visible');
+                document.getElementById('main').style.marginTop = '5vh';
+                responseContent.innerHTML += `
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--glass-border);">
+                        <span style="color: var(--secondary); font-size: 13px;">Вы:</span>
+                        <div style="margin-top: 5px;">${prompt}</div>
+                    </div>
+                    <div style="margin-top: 15px; padding: 14px; border-radius: 8px; background: hsla(217, 91%, 60%, 0.08); border: 1px solid var(--glass-border); color: var(--primary); font-size: 14px; line-height: 1.5;">
+                        Провайдер API ожидает подключения. Укажите параметры endpoint, apiKey и model в объекте <code>PROVIDER_CONFIG</code>.
+                    </div>
+                `;
+                promptInput.value = '';
+                promptInput.style.height = 'auto';
+                return;
+            }
+    
+            // 2. ДОБАВЛЯЕМ ВОПРОС ПОЛЬЗОВАТЕЛЯ В ИСТОРИЮ
+            chatHistory.push({ role: "user", content: prompt });
+    
+            // Очищаем поле ввода для следующего вопроса
+            promptInput.value = '';
+            promptInput.style.height = 'auto';
+    
+            // UI обновления
+            sendBtn.disabled = true;
+            sendIcon.style.display = 'none';
+            loader.style.display = 'block';
+            
+            // Показываем контейнер, если он еще скрыт
+            responseContainer.classList.add('visible');
+            document.getElementById('main').style.marginTop = '5vh';
+    
+            // Отображаем вопрос пользователя в интерфейсе
+            const userMsgHtml = `
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--glass-border);">
+                    <span style="color: var(--secondary); font-size: 13px;">Вы:</span>
+                    <div style="margin-top: 5px;">${prompt}</div>
+                </div>
+                <div id="loading-indicator" style="margin-top: 15px; color: var(--accent); font-size: 14px;">
+                    ИИ думает...
+                </div>
+            `;
+            responseContent.innerHTML += userMsgHtml;
+    
+            try {
+                const response = await fetch(PROVIDER_CONFIG.endpoint, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${PROVIDER_CONFIG.apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: PROVIDER_CONFIG.model,
+                        messages: chatHistory,
+                        stream: true 
+                    })
+                });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || "Ошибка соединения с сервером");
+            }
+
+            // Удаляем надпись "ИИ думает..." сразу, как только пошел ответ
+            document.getElementById('loading-indicator')?.remove();
+
+            // 2. Создаем уникальный ID для контейнера текущего ответа
+            const messageId = "ai-msg-" + Date.now();
+            
+            // Добавляем "каркас" сообщения ИИ в чат
+            responseContent.innerHTML += `
+                <div style="margin-top: 15px;">
+                    <span style="color: var(--accent); font-size: 13px; font-weight: bold;">ИИ:</span>
+                    <div id="${messageId}" style="margin-top: 5px; min-height: 24px;"></div>
+                </div>
+            `;
+            
+            // Находим этот пустой контейнер
+            const messageContainer = document.getElementById(messageId);
+
+            // 3. Начинаем читать поток
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let aiFullText = ""; // Сюда будем собирать текст по буквам
+            let buffer = ""; // Буфер для склейки разорванных строк данных
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                // Декодируем кусок байтов в текст
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                
+                // Последняя строка может быть неполной, оставляем её в буфере
+                buffer = lines.pop(); 
+
+                for (const line of lines) {
+                    if (line.trim() === '' || line.trim() === 'data: [DONE]') continue;
+                    
+                    if (line.startsWith('data: ')) {
+                        try {
+                            // Отрезаем приставку "data: " и парсим JSON
+                            const data = JSON.parse(line.substring(6));
+                            const content = data.choices[0]?.delta?.content || "";
+                            
+                            if (content) {
+                                aiFullText += content; 
+                                
+                                // 1. Проверяем, находится ли пользователь у нижнего края экрана ДО добавления текста (с запасом 150px)
+                                const isNearBottom = (document.documentElement.scrollHeight - window.scrollY - window.innerHeight) < 150;
+
+                                // 2. На лету парсим Маркдаун и обновляем экран
+                                messageContainer.innerHTML = marked.parse(aiFullText);
+                                
+                                // 3. Если скролл был внизу, ИИ продолжает тянуть его за собой. 
+                                // Если пользователь крутанул вверх — ИИ перестает мешать.
+                                if (isNearBottom) {
+                                    window.scrollTo({
+                                        top: document.documentElement.scrollHeight,
+                                        behavior: "auto" // "auto" не дергает экран при быстрой потоковой печати, в отличие от "smooth"
+                                    });
+                                }
+                            }
+                        } catch (e) {
+                            console.error("Ошибка парсинга куска данных: ", e, line);
+                        }
+                    }
+                }
+            }
+
+            // 5. Когда поток закончился, сохраняем ГОТОВЫЙ ответ в историю
+            chatHistory.push({ role: "assistant", content: aiFullText });
+
+        } catch (error) {
+            document.getElementById('loading-indicator')?.remove();
+            responseContent.innerHTML += `<div style="margin-top: 15px; color: #ef4444;">Ошибка: ${error.message}</div>`;
+            // Удаляем последний вопрос из памяти при ошибке
+            chatHistory.pop();
+        } finally {
+            sendBtn.disabled = false;
+            sendIcon.style.display = 'block';
+            loader.style.display = 'none';
+        }
+        }
+    </script>
+    <script src="wrap.js"></script>
+</body>
+</html>

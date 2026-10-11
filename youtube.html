@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Универсальный высокопроизводительный видеопроигрыватель для ссылок и медиапотоков." />
+  <meta name="theme-color" content="#121316" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob: https: http:; script-src 'self' 'unsafe-inline' https: http:; style-src 'self' 'unsafe-inline' https: http:; connect-src 'self' https: http: ws: wss: data: blob:; frame-src https: http: data: blob:; img-src 'self' https: http: data: blob:; font-src 'self' https: http: data:; media-src 'self' https: http: data: blob:; object-src 'none'; base-uri 'self';" />
+  <title>AETHER // Media Hub</title>
+  <link rel="stylesheet" href="youtube.css" />
+</head>
+<body class="app-body">
+  <!-- SVG Grain Filter -->
+  <svg class="noise-overlay" aria-hidden="true">
+    <filter id="grain-filter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" />
+      <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.04 0" />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#grain-filter)" />
+  </svg>
+
+  <div class="app-layout">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-container">
+        <div class="brand-group">
+          <div class="brand-glyph" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </div>
+          <div class="brand-meta">
+            <span class="brand-title glitch-text" data-text="AETHER // PLAYER">AETHER // PLAYER</span>
+            <span class="brand-badge">DESKTOP / MOBILE</span>
+          </div>
+        </div>
+
+        <nav class="header-actions" aria-label="Панель управления">
+          <button id="btn-open-settings" class="btn btn-ghost" type="button" title="Настройки API" aria-label="Открыть настройки YouTube Data API">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span class="btn-text">YouTube API</span>
+          </button>
+          <button id="btn-clear-history" class="btn btn-ghost" type="button" title="Очистить историю" aria-label="Очистить историю просмотров">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <span class="btn-text">Очистить список</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="app-main">
+      <!-- Search & Input Section -->
+      <section class="input-section" aria-label="Ввод источника видео">
+        <div class="glass-panel input-card">
+          <form id="media-form" class="media-form" novalidate>
+            <div class="input-wrapper">
+              <div class="input-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+              </div>
+              <input
+                id="media-url-input"
+                class="text-input"
+                type="text"
+                placeholder="Вставьте ссылку YouTube, ID, плейлист, прямой URL или введите поисковый запрос..."
+                required
+                autocomplete="off"
+                spellcheck="false"
+                aria-label="URL видео или поисковый запрос"
+              />
+              <button id="btn-paste" class="btn btn-icon" type="button" title="Вставить из буфера" aria-label="Вставить ссылку из буфера обмена">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="form-footer">
+              <div class="source-badges" aria-label="Поддерживаемые платформы">
+                <span class="pill-tag">YouTube</span>
+                <span class="pill-tag">Rutube</span>
+                <span class="pill-tag">VK Video</span>
+                <span class="pill-tag">Vimeo</span>
+                <span class="pill-tag">MP4/WebM</span>
+              </div>
+              <button id="btn-submit" class="btn btn-primary" type="submit">
+                <span class="btn-loader" aria-hidden="true"></span>
+                <svg class="btn-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <span>Воспроизвести</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- YouTube Data API Search Results Drawer -->
+      <section class="search-results-section" id="search-results-section" aria-label="Результаты поиска YouTube" style="display: none;">
+        <div class="section-title-bar">
+          <div class="title-with-count">
+            <h2 class="section-title">Результаты поиска YouTube Data API</h2>
+            <span class="count-badge" id="search-results-counter">0</span>
+          </div>
+          <button id="btn-close-search" class="btn btn-icon-small" type="button" title="Скрыть результаты" aria-label="Закрыть панель результатов">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="search-grid" id="search-grid"></div>
+      </section>
+
+      <!-- Player Viewport Stage -->
+      <section class="stage-section" aria-label="Экран воспроизведения">
+        <div class="glass-panel stage-card" id="stage-card">
+          <div class="ambient-glow" aria-hidden="true" id="ambient-glow"></div>
+          
+          <div class="stage-header">
+            <div class="active-meta">
+              <span class="status-indicator" id="playback-status-indicator"></span>
+              <span class="active-title" id="active-video-title">Готов к воспроизведению</span>
+              <span class="engine-tag" id="engine-status-tag">STANDBY</span>
+            </div>
+            <div class="stage-controls">
+              <button id="btn-toggle-aspect" class="btn btn-icon-small" type="button" title="Переключить соотношение сторон" aria-label="Формат кадра">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                  <line x1="7" y1="2" x2="7" y2="22"></line>
+                  <line x1="17" y1="2" x2="17" y2="22"></line>
+                </svg>
+              </button>
+              <button id="btn-fullscreen" class="btn btn-icon-small" type="button" title="На весь экран" aria-label="Полноэкранный режим">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="viewport-frame" id="viewport-frame">
+            <!-- Empty state placeholder -->
+            <div class="viewport-placeholder" id="viewport-placeholder">
+              <div class="placeholder-icon">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                  <polygon points="10 8 16 12 10 16 10 8"></polygon>
+                </svg>
+              </div>
+              <p class="placeholder-text">Вставьте URL или запустите поиск YouTube</p>
+              <span class="placeholder-sub">YouTube IFrame API // Data API v3 // Electron // Capacitor</span>
+            </div>
+
+            <!-- YouTube IFrame API Target Mount Node -->
+            <div id="yt-player-container" class="yt-mount-wrapper">
+              <div id="yt-player-mount"></div>
+            </div>
+
+            <!-- Generic Media Mount Node (Direct MP4, Rutube, VK, Vimeo) -->
+            <div class="media-slot" id="media-slot"></div>
+          </div>
+
+          <!-- AETHER Extended IFrame Player Control Suite -->
+          <div class="player-control-deck" id="player-control-deck" aria-label="Расширенное управление IFrame плеером">
+            <div class="deck-scrubber" id="deck-scrubber" role="slider" aria-label="Таймлайн воспроизведения" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+              <div class="scrubber-track">
+                <div class="scrubber-loaded" id="scrubber-loaded"></div>
+                <div class="scrubber-progress" id="scrubber-progress"></div>
+              </div>
+              <div class="scrubber-thumb" id="scrubber-thumb"></div>
+            </div>
+
+            <div class="deck-toolbar">
+              <div class="deck-group left">
+                <button id="btn-ctrl-prev" class="btn btn-icon-small" type="button" title="Предыдущее видео в плейлисте" aria-label="Предыдущее видео">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                    <line x1="5" y1="19" x2="5" y2="5"></line>
+                  </svg>
+                </button>
+                <button id="btn-ctrl-play" class="btn btn-play-main" type="button" title="Воспроизвести / Пауза" aria-label="Воспроизведение">
+                  <svg class="icon-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  <svg class="icon-pause" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                  </svg>
+                </button>
+                <button id="btn-ctrl-stop" class="btn btn-icon-small" type="button" title="Остановить" aria-label="Остановить">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="5" y="5" width="14" height="14" rx="1.5"></rect>
+                  </svg>
+                </button>
+                <button id="btn-ctrl-next" class="btn btn-icon-small" type="button" title="Следующее видео в плейлисте" aria-label="Следующее видео">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                    <line x1="19" y1="5" x2="19" y2="19"></line>
+                  </svg>
+                </button>
+
+                <div class="deck-time">
+                  <span id="time-current">00:00</span>
+                  <span class="time-sep">/</span>
+                  <span id="time-duration">00:00</span>
+                </div>
+              </div>
+
+              <div class="deck-group right">
+                <!-- Volume Control -->
+                <div class="volume-widget">
+                  <button id="btn-ctrl-mute" class="btn btn-icon-small" type="button" title="Звук" aria-label="Отключить/включить звук">
+                    <svg class="icon-volume-high" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                    <svg class="icon-volume-muted" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                      <line x1="23" y1="9" x2="17" y2="15"></line>
+                      <line x1="17" y1="9" x2="23" y2="15"></line>
+                    </svg>
+                  </button>
+                  <input id="volume-range" class="volume-slider" type="range" min="0" max="100" value="100" aria-label="Регулятор громкости" />
+                </div>
+
+                <!-- Rate Selector -->
+                <div class="rate-selector-wrap">
+                  <button id="btn-ctrl-speed" class="btn btn-chip" type="button" title="Скорость воспроизведения" aria-label="Скорость">
+                    <span id="current-speed-label">1.0x</span>
+                  </button>
+                  <div class="rate-dropdown" id="rate-dropdown" style="display: none;">
+                    <button class="rate-opt" data-rate="0.25">0.25x</button>
+                    <button class="rate-opt" data-rate="0.5">0.5x</button>
+                    <button class="rate-opt" data-rate="0.75">0.75x</button>
+                    <button class="rate-opt active" data-rate="1">1.0x (Норм)</button>
+                    <button class="rate-opt" data-rate="1.25">1.25x</button>
+                    <button class="rate-opt" data-rate="1.5">1.5x</button>
+                    <button class="rate-opt" data-rate="2">2.0x</button>
+                  </div>
+                </div>
+
+                <!-- Playlist Loop & Shuffle -->
+                <button id="btn-ctrl-loop" class="btn btn-icon-small" type="button" title="Зацикливание плейлиста" aria-label="Зациклить">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="17 1 21 5 17 9"></polyline>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                    <polyline points="7 23 3 19 7 15"></polyline>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                  </svg>
+                </button>
+                <button id="btn-ctrl-shuffle" class="btn btn-icon-small" type="button" title="Перемешать плейлист" aria-label="Перемешать">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 3 21 3 21 8"></polyline>
+                    <line x1="4" y1="20" x2="21" y2="3"></line>
+                    <polyline points="21 16 21 21 16 21"></polyline>
+                    <line x1="15" y1="15" x2="21" y2="21"></line>
+                    <line x1="4" y1="4" x2="9" y2="9"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- History & Library Section -->
+      <section class="history-section" aria-label="История просмотров">
+        <div class="section-title-bar">
+          <div class="title-with-count">
+            <h2 class="section-title">Журнал сессий</h2>
+            <span class="count-badge" id="history-counter">0</span>
+          </div>
+        </div>
+
+        <div class="history-grid" id="history-grid">
+          <!-- Dynamic cards injected via JS -->
+        </div>
+
+        <div class="history-empty" id="history-empty">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>История воспроизведений пуста</span>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modal: YouTube Data API v3 Configuration -->
+    <dialog class="modal-dialog" id="settings-modal" aria-labelledby="settings-dialog-title" aria-modal="true">
+      <div class="glass-panel modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <h3 id="settings-dialog-title" class="modal-title">YouTube Data API v3</h3>
+          </div>
+          <button id="btn-close-settings" class="btn btn-icon-small" type="button" aria-label="Закрыть окно настроек">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <p class="modal-description">
+            Подключение официального ключа Google Cloud YouTube Data API v3 разблокирует прямой поиск видео, автоматическое получение названий, каналов, плейлистов и метаданных. Ключ хранится локально в IndexedDB.
+          </p>
+
+          <div class="form-group">
+            <label for="yt-api-key-input" class="form-label">Google YouTube API Key</label>
+            <div class="input-wrapper">
+              <input
+                id="yt-api-key-input"
+                class="text-input"
+                type="password"
+                placeholder="AIzaSy..."
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button id="btn-toggle-key-visibility" class="btn btn-icon" type="button" title="Показать/скрыть ключ" aria-label="Показать ключ">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+            <span class="form-hint">Оставьте пустым для работы в стандартном автономном режиме плеера.</span>
+          </div>
+
+          <div class="key-status-indicator" id="key-status-indicator">
+            <span class="status-dot"></span>
+            <span class="status-msg">Ключ не настроен</span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="btn-test-key" class="btn btn-ghost" type="button">Проверить связь</button>
+          <button id="btn-save-key" class="btn btn-primary" type="button">Сохранить</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Toast Notification Container -->
+    <aside class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></aside>
+  </div>
+
+  <script src="youtube.js"></script>
+</body>
+<script src="wrap.js"></script>
+</html>

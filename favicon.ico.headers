@@ -1,0 +1,13 @@
+HTTP/2 200 
+date: Sun, 11 Oct 2026 14:54:31 GMT
+content-type: image/vnd.microsoft.icon
+content-length: 270398
+cf-cache-status: HIT
+cache-control: public, max-age=0, must-revalidate
+etag: "4e4f038a2de619fdfbab0fd68cb17017"
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=IzvIwQ7JMVaeWNLkRZ4xOzJzJxeyZi%2B8mte6um1RnnVhy4QJNzYflT0eQKutvTSuJvTk66HrjarZYN4tVS65rJSoFuub07xUA%2FEIwwHTWLNiH3HiMUu7ONAezthNwfUQl4WMK7y1SDOE3m3yR2PhMdUejG%2BosqnX"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+cf-ray: a48eb3596f925d74-FRA
+alt-svc: h3=":443"; ma=86400
+

@@ -1,0 +1,3785 @@
+<!-- ГЕНЕРАТОР ИЗОБРАЖЕНИЙ -->
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UniRate — Side by Side</title>
+    <!-- Premium Font Integration -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* -------------------------------------------------------------
+           CSS VARIABLES & SYSTEM DESIGN
+           ------------------------------------------------------------- */
+        :root {
+            --bg-base: #030303;
+            --bg-panel: rgba(10, 10, 12, 0.65);
+            --bg-control: rgba(20, 20, 25, 0.7);
+            --bg-control-active: rgba(30, 30, 38, 0.9);
+            
+            --border-primary: rgba(255, 255, 255, 0.04);
+            --border-hover: rgba(255, 255, 255, 0.12);
+            --border-glow: rgba(59, 130, 246, 0.3);
+            
+            --accent: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --accent-glow: rgba(59, 130, 246, 0.2);
+            --accent-glow-strong: rgba(59, 130, 246, 0.4);
+            
+            --fg-primary: #f8fafc;
+            --fg-secondary: #94a3b8;
+            --fg-mute: #475569;
+            
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-rapid: all 0.15s ease-out;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+        }
+
+        /* -------------------------------------------------------------
+           BASE SYSTEM STYLING
+           ------------------------------------------------------------- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-base);
+            color: var(--fg-primary);
+            font-family: var(--font-sans);
+            overflow: hidden;
+        }
+
+        /* -------------------------------------------------------------
+           HIGH-PERFORMANCE BACKGROUND SYSTEM
+           ------------------------------------------------------------- */
+        .background-stage {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .grid-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.15) 0%, var(--bg-base) 90%),
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 100% 100%, 48px 48px, 48px 48px;
+            z-index: 1;
+        }
+
+        .bg-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(140px);
+            opacity: 0.12;
+            z-index: 2;
+        }
+
+        .blob-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 80%);
+            top: -10%;
+            left: 5%;
+        }
+
+        .blob-2 {
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, #8b5cf6 0%, transparent 80%);
+            bottom: -15%;
+            right: 5%;
+        }
+
+        /* -------------------------------------------------------------
+           MAIN STUDIO PERSPECTIVE CARRIER
+           ------------------------------------------------------------- */
+        #studio-container {
+            position: relative;
+            z-index: 10;
+            width: 100vw;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 16px;
+            box-sizing: border-box;
+        }
+
+        /* -------------------------------------------------------------
+           SYSTEM NAVIGATION & STATUS BAR
+           ------------------------------------------------------------- */
+        header {
+            height: 56px;
+            flex-shrink: 0;
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-symbol {
+            width: 24px;
+            height: 24px;
+            color: var(--accent);
+        }
+
+        .logo-text {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            background: linear-gradient(120deg, var(--fg-primary) 30%, var(--fg-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-tagline {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+            text-transform: uppercase;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .system-trace {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--fg-secondary);
+        }
+
+        .trace-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .trace-node {
+            color: var(--accent);
+        }
+
+        .sys-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        /* -------------------------------------------------------------
+           CORE WORKSPACE GRID (SETTINGS VS CANVAS)
+           ------------------------------------------------------------- */
+        .workspace {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 16px;
+            height: calc(100% - 72px - 140px); /* accounting for header & history shelf */
+            min-height: 0;
+        }
+
+        /* -------------------------------------------------------------
+           SIDEBAR PANEL (CONFIGURATOR)
+           ------------------------------------------------------------- */
+        aside.configurator {
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            min-height: 0;
+            padding: 24px;
+            gap: 24px;
+        }
+
+        aside.configurator::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        aside.configurator::-webkit-scrollbar-thumb {
+            background: var(--border-hover);
+            border-radius: 2px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--fg-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title svg {
+            width: 14px;
+            height: 14px;
+            color: var(--accent);
+        }
+
+        .config-block {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Segmented control styling */
+        .segmented-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--bg-control);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-md);
+            padding: 3px;
+            gap: 2px;
+        }
+
+        .segment-btn {
+            background: transparent;
+            border: none;
+            color: var(--fg-secondary);
+            font-family: var(--font-sans);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 8px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition-rapid);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .segment-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .segment-btn.active {
+            background: var(--bg-control-active);
+            color: var(--fg-primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+            border: 1px solid var(--border-primary);
+        }
+
+        /* Settings input frames */
+        .input-frame {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-text {
+            width: 100%;
+            background: var(--bg-control);
+            border: 1px solid var(--border-primary);
+            color: var(--fg-primary);
+            font-family: var(--font-sans);
+            font-size: 13px;
+            padding: 10px 14px;
+            padding-right: 40px;
+            border-radius: var(--radius-md);
+            transition: var(--transition-smooth);
+            outline: none;
+        }
+
+        .input-text:focus {
+            border-color: var(--border-glow);
+            box-shadow: 0 0 12px var(--accent-glow);
+            background: rgba(15, 15, 20, 0.9);
+        }
+
+        .input-action-btn {
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: var(--fg-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            transition: var(--transition-rapid);
+        }
+
+        .input-action-btn:hover {
+            color: var(--fg-primary);
+        }
+
+        .input-action-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Selector menu */
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-element {
+            width: 100%;
+            background: var(--bg-control);
+            border: 1px solid var(--border-primary);
+            color: var(--fg-primary);
+            font-family: var(--font-sans);
+            font-size: 13px;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            transition: var(--transition-smooth);
+        }
+
+        .select-element:focus {
+            border-color: var(--border-glow);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        .select-wrapper::after {
+            content: "";
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 5px solid var(--fg-secondary);
+            pointer-events: none;
+        }
+
+        /* Aspect ratio selection matrix */
+        .aspect-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .aspect-btn {
+            background: var(--bg-control);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-md);
+            padding: 12px 8px;
+            color: var(--fg-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .aspect-btn:hover {
+            border-color: var(--border-hover);
+            color: var(--fg-primary);
+        }
+
+        .aspect-btn.active {
+            border-color: var(--accent);
+            background: var(--bg-control-active);
+            color: var(--fg-primary);
+            box-shadow: inset 0 0 8px var(--accent-glow);
+        }
+
+        .aspect-thumb {
+            border: 1.5px solid currentColor;
+            border-radius: 3px;
+            opacity: 0.8;
+            transition: var(--transition-rapid);
+        }
+
+        .aspect-btn.active .aspect-thumb {
+            opacity: 1;
+        }
+
+        .aspect-label {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .aspect-value {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            opacity: 0.6;
+        }
+
+        /* -------------------------------------------------------------
+           CONSOLE PANEL (PROMPT & RESULT WORKSPACE)
+           ------------------------------------------------------------- */
+        main.console {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-height: 0;
+        }
+
+        /* Combined text generation controller */
+        .prompt-architect {
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            flex-shrink: 0;
+            transition: var(--transition-smooth);
+        }
+
+        .prompt-architect:focus-within {
+            border-color: rgba(59, 130, 246, 0.25);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.5), inset 0 0 12px rgba(59,130,246,0.03);
+        }
+
+        .textarea-carrier {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .prompt-area {
+            width: 100%;
+            height: 60px;
+            background: transparent;
+            border: none;
+            outline: none;
+            resize: none;
+            color: var(--fg-primary);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            line-height: 1.5;
+            padding-right: 120px;
+        }
+
+        .prompt-area::placeholder {
+            color: var(--fg-mute);
+        }
+
+        .prompt-tools {
+            position: absolute;
+            right: 0;
+            bottom: 4px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .tool-micro-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-sm);
+            padding: 6px 10px;
+            color: var(--fg-secondary);
+            font-family: var(--font-sans);
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-rapid);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tool-micro-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--fg-primary);
+            border-color: var(--border-hover);
+        }
+
+        .tool-micro-btn svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        /* Large execution button */
+        .generate-trigger {
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: var(--radius-md);
+            color: #ffffff;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 16px 24px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 16px var(--accent-glow);
+            height: 60px;
+            flex-shrink: 0;
+        }
+
+        .generate-trigger:hover {
+            box-shadow: 0 6px 24px var(--accent-glow-strong);
+            transform: translateY(-1px);
+        }
+
+        .generate-trigger:active {
+            transform: translateY(1px);
+        }
+
+        .generate-trigger svg {
+            width: 18px;
+            height: 18px;
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 1px rgba(255,255,255,0.8)); }
+            50% { filter: drop-shadow(0 0 6px rgba(255,255,255,1)); }
+        }
+
+        /* Display matrix viewport */
+        .canvas-frame {
+            flex-grow: 1;
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        /* Neutral layout schema default template */
+        .default-blueprint {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            text-align: center;
+            color: var(--fg-secondary);
+            z-index: 5;
+            transition: var(--transition-smooth);
+        }
+
+        .blueprint-compass {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .blueprint-ring {
+            position: absolute;
+            inset: 0;
+            border: 1px dashed rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            animation: rotate-clockwise 40s linear infinite;
+        }
+
+        .blueprint-pulse {
+            position: absolute;
+            width: 48px;
+            height: 48px;
+            border: 1.5px solid var(--accent);
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: radar-ping 2.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+        }
+
+        .blueprint-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--accent);
+        }
+
+        @keyframes rotate-clockwise {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes radar-ping {
+            0% { transform: scale(0.6); opacity: 0.8; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+
+        .blueprint-text h3 {
+            color: var(--fg-primary);
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            letter-spacing: 0.02em;
+        }
+
+        .blueprint-text p {
+            font-size: 12px;
+            color: var(--fg-mute);
+            max-width: 280px;
+            line-height: 1.4;
+        }
+
+        /* Active loading loop overlay */
+        .inference-pipeline {
+            position: absolute;
+            inset: 0;
+            background: rgba(8, 8, 10, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .inference-pipeline.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .pipeline-radial {
+            position: relative;
+            width: 64px;
+            height: 64px;
+        }
+
+        .spinner-arc {
+            position: absolute;
+            inset: 0;
+            border: 2px solid transparent;
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .pipeline-terminal {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            text-align: center;
+            width: 320px;
+        }
+
+        .terminal-status {
+            color: var(--accent);
+            margin-bottom: 8px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        .terminal-substep {
+            color: var(--fg-secondary);
+            font-size: 10px;
+        }
+
+        .pipeline-progress-track {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 1px;
+            margin-top: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .pipeline-progress-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        /* Output viewer configuration */
+        .render-showcase {
+            position: absolute;
+            inset: 0;
+            z-index: 8;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .render-showcase.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .render-showcase img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: var(--radius-md);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.8), 0 0 1px rgba(255,255,255,0.1);
+            cursor: zoom-in;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .render-showcase img:hover {
+            transform: scale(1.01);
+        }
+
+        /* Float controls shelf */
+        .render-actions {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            opacity: 0;
+            display: flex;
+            gap: 8px;
+            background: rgba(10, 10, 12, 0.85);
+            border: 1px solid var(--border-hover);
+            padding: 6px;
+            border-radius: var(--radius-md);
+            backdrop-filter: blur(12px);
+            z-index: 12;
+            transition: var(--transition-smooth);
+            pointer-events: none;
+        }
+
+        .render-showcase.active:hover .render-actions {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .action-icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--fg-secondary);
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-rapid);
+            position: relative;
+        }
+
+        .action-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--fg-primary);
+        }
+
+        .action-icon-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Tooltip configuration */
+        .action-icon-btn::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 44px;
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            background: #000000;
+            color: var(--fg-primary);
+            font-size: 10px;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-hover);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition-rapid);
+        }
+
+        .action-icon-btn:hover::before {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* -------------------------------------------------------------
+           BOTTOM GALLERY REEL (HISTORY)
+           ------------------------------------------------------------- */
+        .history-shelf {
+            height: 124px;
+            flex-shrink: 0;
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            padding: 16px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .shelf-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--fg-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .shelf-title svg {
+            width: 14px;
+            height: 14px;
+            color: var(--accent);
+        }
+
+        .shelf-carousel {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            min-height: 0;
+            flex-grow: 1;
+            padding-bottom: 4px;
+        }
+
+        .shelf-carousel::-webkit-scrollbar {
+            height: 3px;
+        }
+
+        .shelf-carousel::-webkit-scrollbar-thumb {
+            background: var(--border-hover);
+            border-radius: 1.5px;
+        }
+
+        .history-card {
+            flex-shrink: 0;
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-primary);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .history-card:hover {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .history-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .history-card-hover {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.25);
+            opacity: 0;
+            transition: var(--transition-rapid);
+            pointer-events: none;
+        }
+
+        .history-card:hover .history-card-hover {
+            opacity: 1;
+        }
+
+        .history-card-delete {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(10, 10, 12, 0.85);
+            border: 1px solid var(--border-primary);
+            color: #ef4444;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: var(--transition-rapid);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        .history-card-delete:hover {
+            background: #ef4444;
+            color: #ffffff;
+            border-color: #ef4444;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+        }
+
+        .history-card-delete svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .empty-history-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            color: var(--fg-mute);
+            font-size: 11px;
+            font-family: var(--font-mono);
+        }
+
+        /* -------------------------------------------------------------
+           MODAL PORTAL (LIGHTBOX ZOOM EFFECT)
+           ------------------------------------------------------------- */
+        .modal-portal {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(3, 3, 5, 0.95);
+            backdrop-filter: blur(24px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition-smooth);
+        }
+
+        .modal-portal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-primary);
+            color: var(--fg-secondary);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-rapid);
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--fg-primary);
+        }
+
+        .modal-content-wrapper {
+            max-width: 90vw;
+            max-height: 85vh;
+            position: relative;
+        }
+
+        .modal-img {
+            max-width: 100%;
+            max-height: 85vh;
+            object-fit: contain;
+            border-radius: var(--radius-md);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.8);
+        }
+
+        .modal-info-bar {
+            position: absolute;
+            bottom: -50px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--fg-secondary);
+            font-family: var(--font-mono);
+        }
+
+        /* -------------------------------------------------------------
+           SYSTEM NOTIFICATIONS HUD
+           ------------------------------------------------------------- */
+        #notifications-area {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .notification-card {
+            pointer-events: auto;
+            background: rgba(10, 10, 12, 0.9);
+            border: 1px solid var(--border-primary);
+            backdrop-filter: blur(12px);
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            width: 320px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: var(--transition-smooth);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .notification-card.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification-card.error {
+            border-color: rgba(239, 68, 68, 0.25);
+            border-left: 3px solid #ef4444;
+        }
+
+        .notification-card.success {
+            border-color: rgba(16, 185, 129, 0.25);
+            border-left: 3px solid #10b981;
+        }
+
+        .notification-card.info {
+            border-color: rgba(59, 130, 246, 0.25);
+            border-left: 3px solid #3b82f6;
+        }
+
+        .notif-icon {
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-card.error .notif-icon { color: #ef4444; }
+        .notification-card.success .notif-icon { color: #10b981; }
+        .notification-card.info .notif-icon { color: #3b82f6; }
+
+        .notif-content {
+            flex-grow: 1;
+        }
+
+        .notif-msg {
+            font-size: 13px;
+            color: var(--fg-primary);
+            font-weight: 500;
+        }
+
+        /* -------------------------------------------------------------
+           RESPONSIVE OPTIMIZATION & DEVICE ADAPTABILITY (MOBILE FIRST COMPATIBLE)
+           ------------------------------------------------------------- */
+        @media (max-width: 1024px) {
+            body, html {
+                overflow: auto;
+                height: auto;
+            }
+            #studio-container {
+                height: auto;
+                min-height: 100dvh;
+                overflow-y: visible;
+                padding: 12px;
+                gap: 12px;
+            }
+            header {
+                padding: 12px 16px;
+                height: auto;
+                min-height: 56px;
+                flex-direction: column;
+                align-items: flex-start;
+                justify-content: center;
+                gap: 12px;
+            }
+            .system-trace {
+                flex-wrap: wrap;
+                gap: 12px;
+                width: 100%;
+                justify-content: space-between;
+                border-top: 1px solid var(--border-primary);
+                padding-top: 10px;
+            }
+            .workspace {
+                grid-template-columns: 1fr;
+                height: auto;
+                gap: 12px;
+            }
+            aside.configurator {
+                order: 2; /* Move configuration settings below the dynamic interface content */
+                height: auto;
+                max-height: none;
+                overflow-y: visible;
+                padding: 16px;
+            }
+            main.console {
+                order: 1; /* Viewport and prompt input are elevated to the top for ergonomic interaction */
+                height: auto;
+            }
+            .prompt-architect {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+            .prompt-area {
+                height: 80px;
+                padding-right: 0;
+            }
+            .prompt-tools {
+                position: static;
+                justify-content: flex-end;
+                margin-top: 8px;
+            }
+            .generate-trigger {
+                width: 100%;
+                height: 52px;
+            }
+            .canvas-frame {
+                height: 420px;
+                min-height: 320px;
+            }
+            .history-shelf {
+                height: auto;
+                padding: 16px;
+                order: 3;
+            }
+            .shelf-carousel {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 8px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            header {
+                gap: 10px;
+            }
+            .logo-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .system-trace {
+                font-size: 10px;
+                gap: 8px;
+            }
+            .canvas-frame {
+                height: 320px;
+            }
+            .aspect-grid {
+                grid-template-columns: 1fr;
+            }
+            .render-showcase img {
+                border-radius: var(--radius-sm);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sleek Static High-Performance Background -->
+    <div class="background-stage">
+        <div class="grid-bg"></div>
+        <div class="bg-blob blob-1"></div>
+        <div class="bg-blob blob-2"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div id="studio-container">
+        
+        <!-- Navigation Header -->
+        <header>
+            <div class="logo-group">
+                <img class="logo-symbol" src="https://i.imgur.com/eJqE29G.png" alt="UniRate Logo" style="width: 24px; height: 24px; border-radius: 4px; object-fit: cover;">
+                <span class="logo-text">UniRate</span>
+                <span class="logo-tagline">Engine</span>
+            </div>
+
+            <div class="system-trace">
+                <div class="trace-item">
+                    <span>Inference:</span>
+                    <span class="trace-node" id="status-inference-node">ProxyAPI Edge</span>
+                </div>
+                <div class="trace-item">
+                    <span>Storage:</span>
+                    <span class="trace-node">IndexedDB</span>
+                </div>
+                <div class="trace-item">
+                    <div class="sys-indicator"></div>
+                    <span>Active Gateway</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Grid Workspace -->
+        <div class="workspace">
+            
+            <!-- Left Panel (Configurations) -->
+            <aside class="configurator">
+                
+                <!-- Engine Operational Mode -->
+                <div class="config-block">
+                    <div class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                        Operational Mode
+                    </div>
+                    <div class="segmented-group" id="engine-mode-group">
+                        <button class="segment-btn active" data-mode="mock" id="mode-btn-mock">
+                            Interactive Sandbox
+                        </button>
+                        <button class="segment-btn" data-mode="live" id="mode-btn-live">
+                            Live Gateway
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Local AI Assistant (Offline WebGPU/WASM Model) -->
+                <div class="config-block" id="local-ai-container">
+                    <div class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                            <rect x="9" y="9" width="6" height="6"></rect>
+                            <line x1="9" y1="1" x2="9" y2="4"></line>
+                            <line x1="15" y1="1" x2="15" y2="4"></line>
+                            <line x1="9" y1="20" x2="9" y2="23"></line>
+                            <line x1="15" y1="20" x2="15" y2="23"></line>
+                            <line x1="20" y1="9" x2="23" y2="9"></line>
+                            <line x1="20" y1="15" x2="23" y2="15"></line>
+                            <line x1="1" y1="9" x2="4" y2="9"></line>
+                            <line x1="1" y1="15" x2="4" y2="15"></line>
+                        </svg>
+                        Local AI Assistant (Offline)
+                    </div>
+                    <div style="background: var(--bg-control); padding: 12px; border: 1px solid var(--border-primary); border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 11px; color: var(--fg-secondary); font-family: var(--font-sans);">SmolLM2 135M</span>
+                            <span id="local-ai-status" style="font-size: 10px; font-family: var(--font-mono); color: var(--fg-mute); text-transform: uppercase; font-weight: 600;">Not Loaded</span>
+                        </div>
+                        
+                        <!-- Real-time Progress Bar -->
+                        <div id="local-ai-progress-container" style="display: none; flex-direction: column; gap: 4px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 9px; font-family: var(--font-mono); color: var(--accent);">
+                                <span id="local-ai-file">Downloading...</span>
+                                <span id="local-ai-percent">0%</span>
+                            </div>
+                            <div style="width: 100%; height: 4px; background: rgba(255, 255, 255, 0.05); border-radius: 2px; overflow: hidden; position: relative;">
+                                <div id="local-ai-bar" style="position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: var(--accent); transition: width 0.1s linear; box-shadow: 0 0 6px var(--accent);"></div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 8px; margin-top: 4px;">
+                            <button class="tool-micro-btn" id="download-local-ai-btn" style="flex: 1; justify-content: center; font-size: 11px; padding: 6px 8px; color: var(--accent); border-color: rgba(59, 130, 246, 0.25);">
+                                Скачать локальную ИИ
+                            </button>
+                            <button class="tool-micro-btn" id="delete-local-ai-btn" style="display: none; justify-content: center; font-size: 11px; padding: 6px 8px; color: #ef4444; border-color: rgba(239, 68, 68, 0.25);">
+                                Удалить модель
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Authentication Gateway -->
+                <div class="config-block" id="api-key-container" style="opacity: 0.5; pointer-events: none; transition: var(--transition-smooth); gap: 12px;">
+                    <div class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Gateway Credentials
+                    </div>
+                    
+                    <div class="config-block" style="gap: 4px;">
+                        <div style="font-size: 10px; font-family: var(--font-mono); color: var(--fg-secondary);">ProxyAPI Key (Paid Models)</div>
+                        <div class="input-frame">
+                            <input type="password" class="input-text" id="api-key-proxyapi" placeholder="sk-...">
+                            <button class="input-action-btn" id="api-key-proxyapi-toggle" data-tooltip="Reveal ProxyAPI Key">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="config-block" style="gap: 4px;">
+                        <div style="font-size: 10px; font-family: var(--font-mono); color: var(--fg-secondary);">OpenRouter Key (Free Models)</div>
+                        <div class="input-frame">
+                            <input type="password" class="input-text" id="api-key-openrouter" placeholder="sk-or-v1-...">
+                            <button class="input-action-btn" id="api-key-openrouter-toggle" data-tooltip="Reveal OpenRouter Key">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Base Reference Image / Edit Anchor -->
+                <div class="config-block" id="base-image-container">
+                    <div class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                        Edit Base Image
+                    </div>
+                    <div style="display: flex; gap: 12px; align-items: center; background: var(--bg-control); padding: 8px 12px; border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
+                        <div id="base-image-preview" style="width: 44px; height: 44px; border-radius: var(--radius-sm); border: 1px dashed var(--border-hover); display: flex; align-items: center; justify-content: center; overflow: hidden; background: rgba(0,0,0,0.2); flex-shrink: 0;">
+                            <span style="font-size: 8px; color: var(--fg-mute); font-family: var(--font-mono); text-transform: uppercase;">None</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px; flex-grow: 1;">
+                            <button class="tool-micro-btn" id="upload-base-btn" style="justify-content: center; width: 100%; font-size: 11px; padding: 4px 8px;">
+                                Upload Source
+                            </button>
+                            <button class="tool-micro-btn" id="clear-base-btn" style="justify-content: center; width: 100%; display: none; color: #ef4444; border-color: rgba(239, 68, 68, 0.25); font-size: 11px; padding: 4px 8px;">
+                                Remove Base
+                            </button>
+                            <input type="file" id="base-image-file-input" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Model Pipeline Selection -->
+                <div class="config-block">
+                    <div class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        </svg>
+                        Model Pipeline
+                    </div>
+                    <div class="select-wrapper">
+                        <select class="select-element" id="model-select">
+                            <!-- Populated Dynamically by AppController -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Custom Model Input Fields -->
+                <div class="config-block" id="custom-model-container" style="display: none;">
+                    <div class="section-title">
+                        Custom Pipeline Model ID
+                    </div>
+                    <div class="input-frame">
+                        <input type="text" class="input-text" id="custom-model-input" placeholder="e.g. black-forest-labs/flux.2-klein-4b">
+                    </div>
+                </div>
+
+                <!-- Reasoning Effort (Sourceful Only) -->
+                <div class="config-block" id="reasoning-effort-container" style="display: none;">
+                    <div class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        Reasoning Effort
+                    </div>
+                    <div class="segmented-group" id="reasoning-effort-group" style="grid-template-columns: repeat(3, 1fr);">
+                        <button class="segment-btn" data-effort="low">Low</button>
+                        <button class="segment-btn active" data-effort="medium">Medium</button>
+                        <button class="segment-btn" data-effort="high">High</button>
+                    </div>
+                </div>
+
+                <!-- Output Modalities -->
+                <div class="config-block">
+                    <div class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="4 7 4 4 20 4 20 7"></polyline>
+                            <line x1="9" y1="20" x2="15" y2="20"></line>
+                            <line x1="12" y1="4" x2="12" y2="20"></line>
+                        </svg>
+                        Output Modalities
+                    </div>
+                    <div class="segmented-group" id="modalities-group">
+                        <button class="segment-btn active" data-mod="image">
+                            Image Only
+                        </button>
+                        <button class="segment-btn" data-mod="image-text">
+                            Multimodal
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Aspect Ratio Visual Picker -->
+                <div class="config-block">
+                    <div class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        </svg>
+                        Aspect Ratio
+                    </div>
+                    <div class="aspect-grid" id="aspect-matrix">
+                        <button class="aspect-btn active" data-ratio="1:1">
+                            <div class="aspect-thumb" style="width: 14px; height: 14px;"></div>
+                            <span class="aspect-label">Square</span>
+                            <span class="aspect-value">1:1</span>
+                        </button>
+                        <button class="aspect-btn" data-ratio="16:9">
+                            <div class="aspect-thumb" style="width: 20px; height: 11px;"></div>
+                            <span class="aspect-label">Cinema</span>
+                            <span class="aspect-value">16:9</span>
+                        </button>
+                        <button class="aspect-btn" data-ratio="9:16">
+                            <div class="aspect-thumb" style="width: 11px; height: 20px;"></div>
+                            <span class="aspect-label">Story</span>
+                            <span class="aspect-value">9:16</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Accessibility / Settings Reset -->
+                <div class="config-block" style="margin-top: auto; border-top: 1px solid var(--border-primary); padding-top: 16px;">
+                    <button class="segment-btn" id="purge-db-btn" style="color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15); width: 100%; justify-content: center; background: rgba(239, 68, 68, 0.03);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; margin-right: 6px;">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                        Clear Studio History
+                    </button>
+                </div>
+
+            </aside>
+
+            <!-- Right Main Console Area -->
+            <main class="console">
+                
+                <!-- Prompt Construction Field -->
+                <div class="prompt-architect">
+                    <div class="textarea-carrier">
+                        <textarea class="prompt-area" id="prompt-textbox" placeholder="Describe the scene you wish to diffuse in vivid terms..."></textarea>
+                        <div class="prompt-tools">
+                            <button class="tool-micro-btn" id="new-canvas-btn" style="color: var(--accent); border-color: rgba(59, 130, 246, 0.25);">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                New Canvas
+                            </button>
+                            <button class="tool-micro-btn" id="inspire-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+                                </svg>
+                                Inspire Prompt
+                            </button>
+                            <button class="tool-micro-btn" id="ai-prompt-expand-btn" style="color: var(--accent); border-color: rgba(59, 130, 246, 0.25);">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                    <polyline points="9 21 3 21 3 15"></polyline>
+                                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                                </svg>
+                                Увеличить
+                            </button>
+                            <button class="tool-micro-btn" id="ai-prompt-shorten-btn" style="color: #10b981; border-color: rgba(16, 185, 129, 0.25);">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="4 14 10 14 10 20"></polyline>
+                                    <polyline points="20 10 14 10 14 4"></polyline>
+                                    <line x1="14" y1="10" x2="21" y2="3"></line>
+                                    <line x1="10" y1="14" x2="3" y2="21"></line>
+                                </svg>
+                                Сократить
+                            </button>
+                            <button class="tool-micro-btn" id="ai-prompt-modify-btn" style="color: #8b5cf6; border-color: rgba(139, 92, 246, 0.25);">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                </svg>
+                                Изменить...
+                            </button>
+                            <div style="position: relative; display: inline-block;">
+                                <button class="tool-micro-btn" id="ai-prompt-gen-btn" style="color: var(--accent); border-color: rgba(59, 130, 246, 0.25);">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path>
+                                    </svg>
+                                    Сгенерировать промпт
+                                </button>
+                                <!-- Sleek Dropdown Popover -->
+                                <div id="ai-prompt-dropdown" style="display: none; position: absolute; bottom: 100%; right: 0; margin-bottom: 8px; background: rgba(10, 10, 12, 0.95); border: 1px solid var(--border-hover); border-radius: var(--radius-md); box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(12px); padding: 4px; width: 220px; z-index: 200; flex-direction: column; gap: 2px;">
+                                    <button class="segment-btn" id="ai-prompt-opt-desc" style="width: 100%; justify-content: flex-start; font-size: 11px; padding: 8px 10px; border-radius: var(--radius-sm); text-align: left; border: none; background: transparent;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; margin-right: 6px; color: var(--accent);">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                        Сгенерировать по описанию...
+                                    </button>
+                                    <button class="segment-btn" id="ai-prompt-opt-rand" style="width: 100%; justify-content: flex-start; font-size: 11px; padding: 8px 10px; border-radius: var(--radius-sm); text-align: left; border: none; background: transparent;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; margin-right: 6px; color: #10b981;">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="8 12 12 16 16 12"></polyline>
+                                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                                        </svg>
+                                        Сгенерировать на рандом
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="generate-trigger" id="submit-prompt-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        Generate
+                    </button>
+                </div>
+
+                <!-- Viewport Panel Canvas -->
+                <div class="canvas-frame" id="visual-viewport">
+                    
+                    <!-- Showcase Completed Rendering -->
+                    <div class="render-showcase" id="completed-render-stage">
+                        <img id="active-viewport-image" src="" alt="Generative Output Node">
+                        
+                        <!-- Evolution Lineage Breadcrumbs/Nodes -->
+                        <div id="evolution-lineage-container" style="position: absolute; top: 24px; left: 24px; display: none; gap: 8px; align-items: center; background: rgba(10, 10, 12, 0.85); border: 1px solid var(--border-primary); padding: 4px 12px; border-radius: 20px; backdrop-filter: blur(12px); z-index: 12; max-width: calc(100% - 48px); overflow-x: auto;">
+                            <div style="font-size: 9px; font-family: var(--font-mono); text-transform: uppercase; color: var(--accent); margin-right: 4px; border-right: 1px solid var(--border-primary); padding-right: 8px; white-space: nowrap; letter-spacing: 0.05em;">Evolutions</div>
+                            <div id="evolution-lineage-trail" style="display: flex; gap: 6px; align-items: center;">
+                                <!-- Filled dynamically with circular clickable thumbnails -->
+                            </div>
+                        </div>
+                        
+                        <!-- Multimodal Text Caption Overlay -->
+                        <div id="multimodal-text-overlay" style="position: absolute; top: 70px; left: 24px; right: 24px; background: rgba(10, 10, 12, 0.85); border: 1px solid var(--border-hover); padding: 12px 16px; border-radius: var(--radius-md); backdrop-filter: blur(12px); font-size: 13px; line-height: 1.5; color: var(--fg-primary); z-index: 12; display: none; max-height: 120px; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+                            <div style="font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; letter-spacing: 0.05em;">Multimodal Response</div>
+                            <span id="multimodal-text-content"></span>
+                        </div>
+                        
+                        <!-- Floating Control Options Overlay -->
+                        <div class="render-actions">
+                            <button class="action-icon-btn" id="action-set-base-btn" data-tooltip="Set as Edit Base">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                </svg>
+                            </button>
+                            <button class="action-icon-btn" id="action-download-btn" data-tooltip="Download High-Res PNG">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                            </button>
+                            <button class="action-icon-btn" id="action-copy-btn" data-tooltip="Copy Base64 URI">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                            <button class="action-icon-btn" id="action-reuse-btn" data-tooltip="Re-populate Prompt">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <polyline points="1 20 1 14 7 14"></polyline>
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sandbox Default Blueprint Frame -->
+                    <div class="default-blueprint" id="default-blueprint-stage">
+                        <div class="blueprint-compass">
+                            <div class="blueprint-ring"></div>
+                            <div class="blueprint-pulse"></div>
+                            <svg class="blueprint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                        </div>
+                        <div class="blueprint-text">
+                            <h3>Generative Output Sandbox</h3>
+                            <p>Configure constraints, input prompts, and generate beautiful spatial assets</p>
+                        </div>
+                    </div>
+
+                    <!-- Latent Denoising Pipeline Overlay -->
+                    <div class="inference-pipeline" id="active-pipeline-overlay">
+                        <div class="pipeline-radial">
+                            <div class="spinner-arc"></div>
+                        </div>
+                        <div class="pipeline-terminal">
+                            <div class="terminal-status" id="pipeline-status-primary">UniRate Pipeline Connection...</div>
+                            <div class="terminal-substep" id="pipeline-status-secondary">Contacting serverless GPU cluster node</div>
+                            <div class="pipeline-progress-track">
+                                <div class="pipeline-progress-bar" id="pipeline-progress-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+
+        <!-- Generations History Shelf -->
+        <footer class="history-shelf">
+            <div class="shelf-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                    <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path>
+                </svg>
+                Generations Index Log
+            </div>
+            <div class="shelf-carousel" id="history-grid-carousel">
+                <!-- Filled dynamically by database pipeline -->
+                <div class="empty-history-indicator">No generated assets registered in this session context.</div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Spatial Zoom Portal Latch (Lightbox) -->
+    <div class="modal-portal" id="lightbox-portal">
+        <button class="modal-close" id="lightbox-close-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <div class="modal-content-wrapper">
+            <img class="modal-img" id="lightbox-image" src="" alt="Exploration Scale Output">
+            <div class="modal-info-bar">
+                <span id="lightbox-meta-prompt">Prompt Context Specifier</span>
+                <span id="lightbox-meta-model">Model Node</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sleek Modal for Description Input -->
+    <div id="description-modal" style="display: none; position: fixed; inset: 0; background: rgba(3, 3, 5, 0.85); backdrop-filter: blur(16px); z-index: 1500; align-items: center; justify-content: center; opacity: 0; transition: var(--transition-smooth);">
+        <div style="background: rgba(10, 10, 12, 0.95); border: 1px solid var(--border-hover); padding: 24px; border-radius: var(--radius-lg); width: 360px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.6);">
+            <div style="font-size: 13px; font-weight: 600; color: var(--fg-primary); display: flex; align-items: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Введите краткое описание
+            </div>
+            <input type="text" id="description-modal-input" placeholder="Например: неоновая кошка в лесу..." style="width: 100%; background: var(--bg-control); border: 1px solid var(--border-primary); color: var(--fg-primary); font-family: var(--font-sans); font-size: 13px; padding: 10px 14px; border-radius: var(--radius-md); outline: none; transition: var(--transition-smooth);">
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button class="tool-micro-btn" id="description-modal-cancel" style="padding: 8px 12px; height: auto;">Отмена</button>
+                <button class="generate-trigger" id="description-modal-submit" style="height: auto; padding: 8px 16px; font-size: 12px; font-weight: 600;">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sleek Modal for Prompt Modification Input -->
+    <div id="modify-modal" style="display: none; position: fixed; inset: 0; background: rgba(3, 3, 5, 0.85); backdrop-filter: blur(16px); z-index: 1500; align-items: center; justify-content: center; opacity: 0; transition: var(--transition-smooth);">
+        <div style="background: rgba(10, 10, 12, 0.95); border: 1px solid var(--border-hover); padding: 24px; border-radius: var(--radius-lg); width: 360px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.6);">
+            <div style="font-size: 13px; font-weight: 600; color: var(--fg-primary); display: flex; align-items: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Как изменить промпт?
+            </div>
+            <input type="text" id="modify-modal-input" placeholder="Например: сделай в дождливую погоду, добавь неон..." style="width: 100%; background: var(--bg-control); border: 1px solid var(--border-primary); color: var(--fg-primary); font-family: var(--font-sans); font-size: 13px; padding: 10px 14px; border-radius: var(--radius-md); outline: none; transition: var(--transition-smooth);">
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button class="tool-micro-btn" id="modify-modal-cancel" style="padding: 8px 12px; height: auto;">Отмена</button>
+                <button class="generate-trigger" id="modify-modal-submit" style="height: auto; padding: 8px 16px; font-size: 12px; font-weight: 600;">Изменить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS SYSTEMS IN ES6 CLASSES -->
+    <script>
+        'use strict';
+
+        /* -------------------------------------------------------------
+           TYPE ARCHITECTURE & MODEL REGISTRY
+           ------------------------------------------------------------- */
+        const MODEL_REGISTRY = [
+            { id: 'sourceful/riverflow-v2-pro', name: 'Riverflow V2 Pro', provider: 'Sourceful', type: 'Reasoning Multi-step', multimodal: false },
+            { id: 'sourceful/riverflow-v2.5-pro', name: 'Riverflow V2.5 Pro', provider: 'Sourceful', type: 'Reasoning Multi-step', multimodal: false },
+            { id: 'x-ai/grok-imagine-image-quality', name: 'Grok Imagine Quality', provider: 'xAI', type: 'Detail Ultra', multimodal: false },
+            { id: 'bytedance-seed/seedream-4.5', name: 'Seedream 4.5', provider: 'ByteDance', type: 'Creative Generation', multimodal: false },
+            { id: 'microsoft/mai-image-2.5', name: 'MAI Image 2.5', provider: 'Microsoft', type: 'Multimodal Generative', multimodal: true },
+            { id: 'black-forest-labs/flux.2-klein-4b', name: 'Flux 2 Klein (4B)', provider: 'Black Forest Labs', type: 'Fast Image', multimodal: false },
+            { id: 'sana/sana-1.6', name: 'Sana 1.6 Studio', provider: 'Sana Team', type: 'Detail Optimized', multimodal: false },
+            { id: 'stabilityai/stable-diffusion-3.5-large', name: 'Stable Diffusion 3.5 Large', provider: 'Stability AI', type: 'Creative Ultra', multimodal: false },
+            { id: 'custom-pipeline-entry', name: 'Custom Gateway Model ID', provider: 'Gateway Override', type: 'Variable', multimodal: true }
+        ];
+
+        const INSPIRATION_PROMPTS = [
+            "A cinematic shot of a glowing neon cybernetic tiger walking down dark Tokyo alleys, reflecting wet puddles, Unreal Engine 5 rendering style, high detail",
+            "An ethereal floating glass castle rising above shifting cloud galaxies, dramatic sunset lighting, sharp focus, digital matte painting",
+            "A surreal mathematical clock melting across crimson desert canyon sands, cosmic nebula space clouds in sky, high-end 3D rendering",
+            "Ancient dark monolith standing in deep forest, moss patterns pulsing with soft neon blue light, moody environment, atmospheric realism",
+            "Flowing organic ribbons of iridescent gold and deep emerald obsidian, architectural structural render, smooth dispersion lighting, premium material aesthetic"
+        ];
+
+        const COLOR_KEYWORDS = [
+            { terms: ['space', 'cosmic', 'galaxy', 'nebula', 'star', 'astronomy'], h1: 270, h2: 320, h3: 220 },
+            { terms: ['forest', 'nature', 'tree', 'green', 'leaf', 'wood', 'emerald', 'moss'], h1: 120, h2: 160, h3: 80 },
+            { terms: ['fire', 'sun', 'burn', 'red', 'orange', 'warm', 'desert', 'hot', 'magma'], h1: 10, h2: 35, h3: 350 },
+            { terms: ['ocean', 'sea', 'water', 'blue', 'ice', 'cold', 'aquatic', 'rain'], h1: 200, h2: 230, h3: 180 },
+            { terms: ['neon', 'cyber', 'cyberpunk', 'synthwave', 'future', 'laser', 'tokyo'], h1: 300, h2: 180, h3: 330 },
+            { terms: ['gold', 'luxury', 'royal', 'wealth', 'rich', 'yellow', 'jewelry'], h1: 45, h2: 60, h3: 35 }
+        ];
+
+        /* -------------------------------------------------------------
+           INDEXEDDB DATABASE ACCESS CONTROLLER (NO LOCALSTORAGE ALOUD)
+           ------------------------------------------------------------- */
+        class DatabaseController {
+            constructor() {
+                this.dbName = 'UniRateEngineStudioDB';
+                this.dbVersion = 1;
+                this.db = null;
+                this.fallbackStore = {}; // Robust in-memory fallback for restricted webview environments
+            }
+
+            init() {
+                return new Promise((resolve) => {
+                    try {
+                        const request = indexedDB.open(this.dbName, this.dbVersion);
+
+                        request.onerror = (e) => {
+                            console.warn("IndexedDB block detected. Engaging high-performance runtime fallback memory.", e.target.error);
+                            resolve(null);
+                        };
+                        request.onsuccess = (e) => {
+                            this.db = e.target.result;
+                            resolve(this.db);
+                        };
+
+                        request.onupgradeneeded = (e) => {
+                            const db = e.target.result;
+                            if (!db.objectStoreNames.contains('settings')) {
+                                db.createObjectStore('settings', { keyPath: 'key' });
+                            }
+                            if (!db.objectStoreNames.contains('history')) {
+                                db.createObjectStore('history', { keyPath: 'id', autoIncrement: true });
+                            }
+                        };
+                    } catch (e) {
+                        console.warn("IndexedDB environment setup failed. Operating via session runtime virtualization.", e);
+                        resolve(null);
+                    }
+                });
+            }
+
+            async getSetting(key) {
+                return new Promise((resolve) => {
+                    if (!this.db) {
+                        return resolve(this.fallbackStore[key] !== undefined ? this.fallbackStore[key] : null);
+                    }
+                    try {
+                        const transaction = this.db.transaction(['settings'], 'readonly');
+                        const store = transaction.objectStore('settings');
+                        const request = store.get(key);
+                        request.onsuccess = () => resolve(request.result ? request.result.value : null);
+                        request.onerror = () => resolve(null);
+                    } catch (e) {
+                        resolve(this.fallbackStore[key] !== undefined ? this.fallbackStore[key] : null);
+                    }
+                });
+            }
+
+            async setSetting(key, value) {
+                return new Promise((resolve) => {
+                    this.fallbackStore[key] = value;
+                    if (!this.db) return resolve();
+                    try {
+                        const transaction = this.db.transaction(['settings'], 'readwrite');
+                        const store = transaction.objectStore('settings');
+                        const request = store.put({ key, value });
+                        request.onsuccess = () => resolve();
+                        request.onerror = () => resolve();
+                    } catch (e) {
+                        resolve();
+                    }
+                });
+            }
+
+            async saveGeneration(prompt, model, imageUrl, text = null, parentId = null, aspectRatio = '1:1', reasoningEffort = 'medium', modalities = 'image') {
+                return new Promise((resolve) => {
+                    const record = { prompt, model, imageUrl, text, parentId, aspectRatio, reasoningEffort, modalities, timestamp: Date.now() };
+                    if (!this.db) {
+                        if (!this.fallbackStore.history) this.fallbackStore.history = [];
+                        record.id = Date.now() + Math.floor(Math.random() * 1000);
+                        this.fallbackStore.history.push(record);
+                        return resolve(record.id);
+                    }
+                    try {
+                        const transaction = this.db.transaction(['history'], 'readwrite');
+                        const store = transaction.objectStore('history');
+                        const request = store.add(record);
+                        request.onsuccess = () => resolve(request.result);
+                        request.onerror = () => resolve(null);
+                    } catch (e) {
+                        if (!this.fallbackStore.history) this.fallbackStore.history = [];
+                        record.id = Date.now() + Math.floor(Math.random() * 1000);
+                        this.fallbackStore.history.push(record);
+                        return resolve(record.id);
+                    }
+                });
+            }
+
+            async getHistory() {
+                return new Promise((resolve) => {
+                    if (!this.db) {
+                        const history = this.fallbackStore.history || [];
+                        return resolve([...history].sort((a, b) => b.timestamp - a.timestamp));
+                    }
+                    try {
+                        const transaction = this.db.transaction(['history'], 'readonly');
+                        const store = transaction.objectStore('history');
+                        const request = store.getAll();
+                        request.onsuccess = () => {
+                            const results = request.result || [];
+                            resolve(results.sort((a, b) => b.timestamp - a.timestamp));
+                        };
+                        request.onerror = () => resolve([]);
+                    } catch (e) {
+                        const history = this.fallbackStore.history || [];
+                        return resolve([...history].sort((a, b) => b.timestamp - a.timestamp));
+                    }
+                });
+            }
+
+            async deleteHistoryItem(id) {
+                return new Promise((resolve) => {
+                    if (!this.db) {
+                        if (this.fallbackStore.history) {
+                            this.fallbackStore.history = this.fallbackStore.history.filter(item => item.id !== id);
+                        }
+                        return resolve();
+                    }
+                    try {
+                        const transaction = this.db.transaction(['history'], 'readwrite');
+                        const store = transaction.objectStore('history');
+                        const request = store.delete(id);
+                        request.onsuccess = () => resolve();
+                        request.onerror = () => resolve();
+                    } catch (e) {
+                        if (this.fallbackStore.history) {
+                            this.fallbackStore.history = this.fallbackStore.history.filter(item => item.id !== id);
+                        }
+                        return resolve();
+                    }
+                });
+            }
+
+            async clearHistory() {
+                return new Promise((resolve) => {
+                    this.fallbackStore.history = [];
+                    if (!this.db) return resolve();
+                    try {
+                        const transaction = this.db.transaction(['history'], 'readwrite');
+                        const store = transaction.objectStore('history');
+                        const request = store.clear();
+                        request.onsuccess = () => resolve();
+                        request.onerror = () => resolve();
+                    } catch (e) {
+                        resolve();
+                    }
+                });
+            }
+        }
+
+        /* -------------------------------------------------------------
+           PROCEDURAL SIMULATION ARTWORK ENGINE
+           ------------------------------------------------------------- */
+        class ProceduralArtGenerator {
+            static async generate(prompt, aspect = "1:1", baseImageBase64 = null) {
+                const canvas = document.createElement('canvas');
+                
+                // Determine Aspect Width/Height
+                let width = 512, height = 512;
+                if (aspect === "16:9") {
+                    width = 768; height = 432;
+                } else if (aspect === "9:16") {
+                    width = 432; height = 768;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+
+                // Generate seed coordinates hash based on query
+                let hash = 0;
+                for (let i = 0; i < prompt.length; i++) {
+                    hash = prompt.charCodeAt(i) + ((hash << 5) - hash);
+                }
+
+                // Match theme configuration keywords
+                let palette = null;
+                const lowerPrompt = prompt.toLowerCase();
+                for (const match of COLOR_KEYWORDS) {
+                    if (match.terms.some(t => lowerPrompt.includes(t))) {
+                        palette = match;
+                        break;
+                    }
+                }
+
+                // Defaults if no keyword mapping
+                const hue1 = palette ? palette.h1 : Math.abs(hash % 360);
+                const hue2 = palette ? palette.h2 : (hue1 + 120) % 360;
+                const hue3 = palette ? palette.h3 : (hue1 + 240) % 360;
+
+                // Set background or blend with base reference image
+                if (baseImageBase64) {
+                    const baseImg = await new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => resolve(img);
+                        img.onerror = () => resolve(null);
+                        img.src = baseImageBase64;
+                    });
+                    if (baseImg) {
+                        ctx.drawImage(baseImg, 0, 0, width, height);
+                        // Blend a tint representing the editing process overlay
+                        ctx.fillStyle = `hsla(${hue1}, 50%, 10%, 0.4)`;
+                        ctx.fillRect(0, 0, width, height);
+                    } else {
+                        ctx.fillStyle = '#050508';
+                        ctx.fillRect(0, 0, width, height);
+                    }
+                } else {
+                    const baseGrad = ctx.createLinearGradient(0, 0, width, height);
+                    baseGrad.addColorStop(0, `hsl(${hue1}, 85%, 6%)`);
+                    baseGrad.addColorStop(0.5, `hsl(${hue2}, 70%, 4%)`);
+                    baseGrad.addColorStop(1, `hsl(${hue3}, 95%, 3%)`);
+                    ctx.fillStyle = baseGrad;
+                    ctx.fillRect(0, 0, width, height);
+                }
+
+                // Math precision lattice mapping overlay
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
+                ctx.lineWidth = 1;
+                const latticeStep = 32;
+                for (let x = 0; x < width; x += latticeStep) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, height);
+                    ctx.stroke();
+                }
+                for (let y = 0; y < height; y += latticeStep) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+
+                // Generative procedural mandala geometries
+                ctx.shadowBlur = 24;
+                ctx.shadowColor = `hsl(${hue1}, 100%, 55%)`;
+
+                const shapeLoops = 14 + (Math.abs(hash) % 12);
+                ctx.lineWidth = 1.6;
+
+                for (let index = 0; index < shapeLoops; index++) {
+                    ctx.strokeStyle = `hsla(${(hue1 + index * (180 / shapeLoops)) % 360}, 95%, 65%, 0.4)`;
+                    ctx.beginPath();
+
+                    const ringBase = 40 + (index * (Math.min(width, height) * 0.45 / shapeLoops));
+                    const vertices = 72;
+                    const waveIntensity = 12 + (Math.abs(hash) % 35);
+
+                    for (let step = 0; step <= vertices; step++) {
+                        const theta = (step / vertices) * Math.PI * 2;
+                        const distOffset = Math.sin(theta * (3 + (index % 4)) + (hash / 10000)) * waveIntensity;
+                        const rx = width / 2 + (ringBase + distOffset) * Math.cos(theta);
+                        const ry = height / 2 + (ringBase + distOffset) * Math.sin(theta);
+
+                        if (step === 0) {
+                            ctx.moveTo(rx, ry);
+                        } else {
+                            ctx.lineTo(rx, ry);
+                        }
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+
+                // Cosmic cluster distribution mapping
+                ctx.shadowBlur = 6;
+                const starCount = 35;
+                for (let sc = 0; sc < starCount; sc++) {
+                    const seedPt = hash + sc * 1776;
+                    const starX = Math.abs(Math.sin(seedPt) * width);
+                    const starY = Math.abs(Math.cos(seedPt) * height);
+                    const starRad = 0.5 + Math.abs(Math.sin(seedPt * 3) * 2);
+
+                    ctx.fillStyle = `hsla(${(hue2 + sc * 8) % 360}, 100%, 85%, ${0.2 + Math.abs(Math.cos(seedPt) * 0.6)})`;
+                    ctx.beginPath();
+                    ctx.arc(starX, starY, starRad, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Outer border vignette
+                const vignette = ctx.createRadialGradient(width / 2, height / 2, width / 4, width / 2, height / 2, width * 0.7);
+                vignette.addColorStop(0, 'rgba(0,0,0,0)');
+                vignette.addColorStop(1, 'rgba(0,0,0,0.85)');
+                ctx.fillStyle = vignette;
+                ctx.shadowBlur = 0;
+                ctx.fillRect(0, 0, width, height);
+
+                // Meta metadata inscription tag
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+                ctx.font = '9px monospace';
+                ctx.textAlign = 'right';
+                ctx.fillText(`UNIRATE ENGINE SYSTEM LOG // ${prompt.slice(0, 20).toUpperCase()} // ${aspect}`, width - 16, height - 16);
+
+                return canvas.toDataURL('image/png');
+            }
+        }
+
+        /* -------------------------------------------------------------
+           NOTIFICATIONS HUD ENGINE
+           ------------------------------------------------------------- */
+        class ToastNotificationHUD {
+            static show(msg, classification = 'info') {
+                const center = document.getElementById('notifications-area') || this.createArea();
+                const element = document.createElement('div');
+                element.className = `notification-card ${classification}`;
+
+                let vectorSvg = '';
+                if (classification === 'error') {
+                    vectorSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+                } else if (classification === 'success') {
+                    vectorSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                } else {
+                    vectorSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+                }
+
+                element.innerHTML = `
+                    <div class="notif-icon">${vectorSvg}</div>
+                    <div class="notif-content">
+                        <span class="notif-msg">${msg}</span>
+                    </div>
+                `;
+
+                center.appendChild(element);
+                
+                // Animate entry triggers
+                setTimeout(() => element.classList.add('visible'), 20);
+
+                // Exit trigger sequences
+                setTimeout(() => {
+                    element.classList.remove('visible');
+                    setTimeout(() => element.remove(), 400);
+                }, 4000);
+            }
+
+            static createArea() {
+                const host = document.createElement('div');
+                host.id = 'notifications-area';
+                document.body.appendChild(host);
+                return host;
+            }
+        }
+
+        /* -------------------------------------------------------------
+           LIVE GATEWAY API CONTROLLER
+           ------------------------------------------------------------- */
+        class GatewayAPIController {
+            static async diffuse(apiKey, modelId, prompt, modalities = ["image"], extraParams = {}, useOpenRouterDirect = false, baseImageBase64 = null, aspectRatio = "1:1", isMultimodalCapable = false) {
+                const endpoint = useOpenRouterDirect 
+                    ? "https://openrouter.ai/api/v1/chat/completions" 
+                    : "https://api.proxyapi.ru/openrouter/v1/chat/completions";
+                
+                let messagesPayload;
+                // Only embed reference image if the model is explicitly multimodal vision-capable
+                if (baseImageBase64 && isMultimodalCapable) {
+                    messagesPayload = [
+                        {
+                            role: "user",
+                            content: [
+                                { type: "text", text: prompt },
+                                { type: "image_url", image_url: { url: baseImageBase64 } }
+                            ]
+                        }
+                    ];
+                } else {
+                    messagesPayload = [{ role: "user", content: prompt }];
+                }
+
+                const bodyPayload = {
+                    model: modelId,
+                    modalities: modalities,
+                    messages: messagesPayload,
+                    image_config: {
+                        aspect_ratio: aspectRatio
+                    },
+                    ...extraParams
+                };
+
+                const headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiKey}`,
+                };
+
+                if (useOpenRouterDirect) {
+                    // OpenRouter recommendations to identify app & manage data policies/rankings
+                    headers["HTTP-Referer"] = window.location.href || "https://unirate-diffusion.studio";
+                    headers["X-Title"] = "UniRate Diffusion Studio";
+                }
+
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: headers,
+                    body: JSON.stringify(bodyPayload),
+                });
+
+                if (!response.ok) {
+                    const details = await response.text();
+                    let errMsg = `Gateway returned error status: ${response.status}`;
+                    try {
+                        const jsonDetails = JSON.parse(details);
+                        if (jsonDetails.error && jsonDetails.error.message) {
+                            errMsg = jsonDetails.error.message;
+                        }
+                    } catch(e) {}
+                    throw new Error(errMsg);
+                }
+
+                const payload = await response.json();
+                
+                // OpenRouter/ProxyAPI frequently return 200 OK responses containing error details inside the JSON payload
+                if (payload.error) {
+                    throw new Error(payload.error.message || `Gateway returned error block: ${payload.error.code || 'unknown'}`);
+                }
+                
+                const responseMessage = payload.choices?.[0]?.message;
+                if (!responseMessage) {
+                    throw new Error("Invalid schema payload returned from gateway node (missing choices object).");
+                }
+
+                // Robust extraction of base64 image data supporting multiple OpenRouter schema variations
+                let generatedImage = null;
+                if (responseMessage.images && responseMessage.images.length > 0) {
+                    const firstImage = responseMessage.images[0];
+                    if (typeof firstImage === 'string') {
+                        generatedImage = firstImage;
+                    } else if (firstImage && typeof firstImage === 'object') {
+                        generatedImage = firstImage.image_url?.url || firstImage.url || null;
+                    }
+                }
+
+                if (!generatedImage) {
+                    // Try fallback content checks in case the model responded with the image in content
+                    if (responseMessage.content && responseMessage.content.startsWith("data:image")) {
+                        generatedImage = responseMessage.content.trim();
+                    } else {
+                        throw new Error("No image base64 structure found in the gateway response registry choices.");
+                    }
+                }
+
+                return {
+                    imageUrl: generatedImage,
+                    text: responseMessage.content && !responseMessage.content.startsWith("data:image") ? responseMessage.content : null
+                };
+            }
+
+            static async generatePrompt(apiKey, useOpenRouterDirect = false, userDescription = null) {
+                const endpoint = useOpenRouterDirect 
+                    ? "https://openrouter.ai/api/v1/chat/completions" 
+                    : "https://api.proxyapi.ru/openrouter/v1/chat/completions";
+                
+                const systemPrompt = "You are an elite creative prompt generator for image AI systems like Midjourney, DALL-E 3, and Stable Diffusion. Generate ONE incredibly detailed, artistic, atmospheric, and highly creative scene description in English (up to 40 words). Focus on lighting, visual styles, mood, and texture. Do not include introductory text, quote marks, bullet points, or numbering. Return ONLY the plain text prompt.";
+                
+                let userPrompt = "Provide a unique, jaw-dropping creative image prompt description.";
+                if (userDescription) {
+                    userPrompt = `Expand the following brief idea into an incredibly creative, atmospheric, and detailed image prompt description: "${userDescription}". Output must be in English, up to 40 words, and optimized for Stable Diffusion / Midjourney.`;
+                }
+
+                const bodyPayload = {
+                    model: "meta-llama/llama-3.2-1b-instruct:free",
+                    messages: [
+                        {
+                            role: "system",
+                            content: systemPrompt
+                        },
+                        {
+                            role: "user",
+                            content: userPrompt
+                        }
+                    ],
+                    max_tokens: 120,
+                    temperature: 0.85
+                };
+
+                const headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiKey}`,
+                };
+
+                if (useOpenRouterDirect) {
+                    headers["HTTP-Referer"] = window.location.href || "https://unirate-diffusion.studio";
+                    headers["X-Title"] = "UniRate Diffusion Studio";
+                }
+
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: headers,
+                    body: JSON.stringify(bodyPayload),
+                });
+
+                if (!response.ok) {
+                    const details = await response.text();
+                    let errMsg = `Gateway returned error status: ${response.status}`;
+                    try {
+                        const jsonDetails = JSON.parse(details);
+                        if (jsonDetails.error && jsonDetails.error.message) {
+                            errMsg = jsonDetails.error.message;
+                        }
+                    } catch(e) {}
+                    throw new Error(errMsg);
+                }
+
+                const payload = await response.json();
+                
+                if (payload.error) {
+                    throw new Error(payload.error.message || "Failed to generate prompt from LLM node.");
+                }
+
+                const textResult = payload.choices?.[0]?.message?.content;
+                if (!textResult) {
+                    throw new Error("Received empty text completions response from model node.");
+                }
+
+                return textResult.trim().replace(/^"|"$/g, ''); // strip wrapping quotes
+            }
+
+            static async transformPrompt(apiKey, useOpenRouterDirect = false, currentPrompt, operation, instruction = null) {
+                const endpoint = useOpenRouterDirect 
+                    ? "https://openrouter.ai/api/v1/chat/completions" 
+                    : "https://api.proxyapi.ru/openrouter/v1/chat/completions";
+                
+                let systemPrompt = "";
+                let userPrompt = "";
+
+                if (operation === 'expand') {
+                    systemPrompt = "You are an elite prompt engineering AI. Your job is to expand and enrich the user's image prompt. Keep it descriptive, highly detailed, dramatic, and creative, in English. Limit the output to 40-50 words. Do not write any explanations or conversational text. Output ONLY the refined prompt.";
+                    userPrompt = `Expand this prompt: "${currentPrompt}"`;
+                } else if (operation === 'shorten') {
+                    systemPrompt = "You are an elite prompt engineering AI. Your job is to condense and shorten the user's image prompt, keeping only the core aesthetic and essential details. Limit the output to 15-20 words in English. Do not write any explanations. Output ONLY the condensed prompt.";
+                    userPrompt = `Shorten this prompt: "${currentPrompt}"`;
+                } else if (operation === 'modify') {
+                    systemPrompt = "You are an elite prompt engineering AI. Modify the existing image prompt according to the user's specific edit instructions. Keep the result descriptive, cohesive, in English, and under 45 words. Do not write any explanations. Output ONLY the modified prompt.";
+                    userPrompt = `Original Prompt: "${currentPrompt}"\nEdit Instruction: "${instruction}"`;
+                }
+
+                const bodyPayload = {
+                    model: "meta-llama/llama-3.2-1b-instruct:free",
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: userPrompt }
+                    ],
+                    max_tokens: 120,
+                    temperature: 0.75
+                };
+
+                const headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiKey}`,
+                };
+
+                if (useOpenRouterDirect) {
+                    headers["HTTP-Referer"] = window.location.href || "https://unirate-diffusion.studio";
+                    headers["X-Title"] = "UniRate Diffusion Studio";
+                }
+
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: headers,
+                    body: JSON.stringify(bodyPayload),
+                });
+
+                if (!response.ok) {
+                    const details = await response.text();
+                    let errMsg = `Gateway returned error status: ${response.status}`;
+                    try {
+                        const jsonDetails = JSON.parse(details);
+                        if (jsonDetails.error && jsonDetails.error.message) {
+                            errMsg = jsonDetails.error.message;
+                        }
+                    } catch(e) {}
+                    throw new Error(errMsg);
+                }
+
+                const payload = await response.json();
+                if (payload.error) {
+                    throw new Error(payload.error.message || "Failed to transform prompt.");
+                }
+
+                const textResult = payload.choices?.[0]?.message?.content;
+                if (!textResult) {
+                    throw new Error("Received empty response from text model.");
+                }
+
+                return textResult.trim().replace(/^"|"$/g, '');
+            }
+        }
+
+        /* -------------------------------------------------------------
+           CORE SYSTEM APP CONTROLLER
+           ------------------------------------------------------------- */
+        class AppController {
+            constructor() {
+                this.db = new DatabaseController();
+                
+                // Local cached pipeline holder
+                this.localGeneratorInstance = null;
+
+                // Runtime Configuration Settings Cache
+                this.state = {
+                    engineMode: 'mock', // 'mock' or 'live'
+                    apiKeyProxy: '',
+                    apiKeyOpenRouter: '',
+                    selectedModel: MODEL_REGISTRY[0].id,
+                    customModelId: '',
+                    reasoningEffort: 'medium', // 'low', 'medium', 'high'
+                    modalities: 'image', // 'image' or 'image-text'
+                    aspectRatio: '1:1',
+                    isGenerating: false,
+                    activeImage: null,
+                    baseImageBase64: null,
+                    baseImageId: null,
+                    localAIInstalled: false
+                };
+
+                this.dom = {
+                    modeBtnMock: document.getElementById('mode-btn-mock'),
+                    modeBtnLive: document.getElementById('mode-btn-live'),
+                    apiKeyContainer: document.getElementById('api-key-container'),
+                    apiKeyProxyInput: document.getElementById('api-key-proxyapi'),
+                    apiKeyProxyVisibility: document.getElementById('api-key-proxyapi-toggle'),
+                    apiKeyOpenRouterInput: document.getElementById('api-key-openrouter'),
+                    apiKeyOpenRouterVisibility: document.getElementById('api-key-openrouter-toggle'),
+                    modelSelect: document.getElementById('model-select'),
+                    customModelContainer: document.getElementById('custom-model-container'),
+                    customModelInput: document.getElementById('custom-model-input'),
+                    reasoningEffortContainer: document.getElementById('reasoning-effort-container'),
+                    reasoningEffortGroup: document.getElementById('reasoning-effort-group'),
+                    
+                    localAIContainer: document.getElementById('local-ai-container'),
+                    localAIStatus: document.getElementById('local-ai-status'),
+                    localAIProgressContainer: document.getElementById('local-ai-progress-container'),
+                    localAIFile: document.getElementById('local-ai-file'),
+                    localAIPercent: document.getElementById('local-ai-percent'),
+                    localAIBar: document.getElementById('local-ai-bar'),
+                    downloadLocalAIBtn: document.getElementById('download-local-ai-btn'),
+                    deleteLocalAIBtn: document.getElementById('delete-local-ai-btn'),
+
+                    baseImageContainer: document.getElementById('base-image-container'),
+                    baseImagePreview: document.getElementById('base-image-preview'),
+                    uploadBaseBtn: document.getElementById('upload-base-btn'),
+                    clearBaseBtn: document.getElementById('clear-base-btn'),
+                    baseImageFileInput: document.getElementById('base-image-file-input'),
+                    
+                    modalitiesGroup: document.getElementById('modalities-group'),
+                    aspectMatrix: document.getElementById('aspect-matrix'),
+                    purgeHistory: document.getElementById('purge-db-btn'),
+                    
+                    promptTextbox: document.getElementById('prompt-textbox'),
+                    inspireBtn: document.getElementById('inspire-btn'),
+                    newCanvasBtn: document.getElementById('new-canvas-btn'),
+                    submitPromptBtn: document.getElementById('submit-prompt-btn'),
+                    
+                    visualViewport: document.getElementById('visual-viewport'),
+                    viewportDefaultStage: document.getElementById('default-blueprint-stage'),
+                    viewportRenderStage: document.getElementById('completed-render-stage'),
+                    viewportActiveImage: document.getElementById('active-viewport-image'),
+                    pipelineOverlay: document.getElementById('active-pipeline-overlay'),
+                    multimodalTextOverlay: document.getElementById('multimodal-text-overlay'),
+                    multimodalTextContent: document.getElementById('multimodal-text-content'),
+                    evolutionLineageContainer: document.getElementById('evolution-lineage-container'),
+                    evolutionLineageTrail: document.getElementById('evolution-lineage-trail'),
+                    
+                    pipelinePrimaryStatus: document.getElementById('pipeline-status-primary'),
+                    pipelineSecondaryStatus: document.getElementById('pipeline-status-secondary'),
+                    pipelineProgressBar: document.getElementById('pipeline-progress-bar'),
+                    
+                    aiPromptDropdown: document.getElementById('ai-prompt-dropdown'),
+                    aiPromptOptDesc: document.getElementById('ai-prompt-opt-desc'),
+                    aiPromptOptRand: document.getElementById('ai-prompt-opt-rand'),
+                    descriptionModal: document.getElementById('description-modal'),
+                    descriptionModalInput: document.getElementById('description-modal-input'),
+                    descriptionModalCancel: document.getElementById('description-modal-cancel'),
+                    descriptionModalSubmit: document.getElementById('description-modal-submit'),
+
+                    aiPromptExpandBtn: document.getElementById('ai-prompt-expand-btn'),
+                    aiPromptShortenBtn: document.getElementById('ai-prompt-shorten-btn'),
+                    aiPromptModifyBtn: document.getElementById('ai-prompt-modify-btn'),
+                    modifyModal: document.getElementById('modify-modal'),
+                    modifyModalInput: document.getElementById('modify-modal-input'),
+                    modifyModalCancel: document.getElementById('modify-modal-cancel'),
+                    modifyModalSubmit: document.getElementById('modify-modal-submit'),
+
+                    actionSetBase: document.getElementById('action-set-base-btn'),
+                    aiPromptGenBtn: document.getElementById('ai-prompt-gen-btn'),
+                    actionDownload: document.getElementById('action-download-btn'),
+                    actionCopy: document.getElementById('action-copy-btn'),
+                    actionReuse: document.getElementById('action-reuse-btn'),
+                    
+                    historyCarousel: document.getElementById('history-grid-carousel'),
+                    
+                    lightboxPortal: document.getElementById('lightbox-portal'),
+                    lightboxClose: document.getElementById('lightbox-close-btn'),
+                    lightboxImage: document.getElementById('lightbox-image'),
+                    lightboxMetaPrompt: document.getElementById('lightbox-meta-prompt'),
+                    lightboxMetaModel: document.getElementById('lightbox-meta-model'),
+                    
+                    statusInferenceNode: document.getElementById('status-inference-node')
+                };
+
+                this.init();
+            }
+
+            async init() {
+                // Initialize local IndexDB client instance
+                try {
+                    await this.db.init();
+                    await this.loadSavedConfigurations();
+                } catch (e) {
+                    ToastNotificationHUD.show("Could not initialize local IndexedDB database.", "error");
+                }
+
+                this.renderModelOptions();
+                this.bindEvents();
+                await this.refreshHistoryShelf();
+                await this.tryLoadLocalAIOnStartup();
+                
+                ToastNotificationHUD.show("UniRate Studio System Context ready.", "success");
+            }
+
+            renderModelOptions() {
+                this.dom.modelSelect.innerHTML = MODEL_REGISTRY.map(model => 
+                    `<option value="${model.id}">${model.name} (${model.provider})</option>`
+                ).join('');
+                this.dom.modelSelect.value = this.state.selectedModel;
+            }
+
+            async loadSavedConfigurations() {
+                const savedMode = await this.db.getSetting('engineMode');
+                if (savedMode) this.state.engineMode = savedMode;
+
+                const savedProxyKey = await this.db.getSetting('apiKeyProxy');
+                if (savedProxyKey) this.state.apiKeyProxy = savedProxyKey;
+
+                const savedORKey = await this.db.getSetting('apiKeyOpenRouter');
+                if (savedORKey) this.state.apiKeyOpenRouter = savedORKey;
+
+                const savedModel = await this.db.getSetting('selectedModel');
+                if (savedModel) this.state.selectedModel = savedModel;
+
+                const savedCustomModel = await this.db.getSetting('customModelId');
+                if (savedCustomModel) this.state.customModelId = savedCustomModel;
+
+                const savedModalities = await this.db.getSetting('modalities');
+                if (savedModalities) this.state.modalities = savedModalities;
+
+                const savedAspect = await this.db.getSetting('aspectRatio');
+                if (savedAspect) this.state.aspectRatio = savedAspect;
+
+                const savedReasoning = await this.db.getSetting('reasoningEffort');
+                if (savedReasoning) this.state.reasoningEffort = savedReasoning;
+
+                const savedLocalAI = await this.db.getSetting('localAIInstalled');
+                if (savedLocalAI) this.state.localAIInstalled = savedLocalAI;
+
+                // Sync configs directly to UI View layout states
+                this.syncStateToUI();
+            }
+
+            syncStateToUI() {
+                // Mode Toggle Sync
+                if (this.state.engineMode === 'live') {
+                    this.dom.modeBtnLive.classList.add('active');
+                    this.dom.modeBtnMock.classList.remove('active');
+                    this.dom.apiKeyContainer.style.opacity = '1';
+                    this.dom.apiKeyContainer.style.pointerEvents = 'auto';
+                    this.dom.statusInferenceNode.textContent = "Live Endpoint Node";
+                } else {
+                    this.dom.modeBtnMock.classList.add('active');
+                    this.dom.modeBtnLive.classList.remove('active');
+                    this.dom.apiKeyContainer.style.opacity = '0.5';
+                    this.dom.apiKeyContainer.style.pointerEvents = 'none';
+                    this.dom.statusInferenceNode.textContent = "Sandbox Loop";
+                }
+
+                // API Key Input Sync
+                this.dom.apiKeyProxyInput.value = this.state.apiKeyProxy;
+                this.dom.apiKeyOpenRouterInput.value = this.state.apiKeyOpenRouter;
+
+                // Model Selection Select Element
+                this.dom.modelSelect.value = this.state.selectedModel;
+                this.toggleCustomModelContainer();
+                this.toggleReasoningEffortContainer();
+
+                // Custom Model Sync Value
+                this.dom.customModelInput.value = this.state.customModelId;
+
+                // Reasoning Effort Sync Value
+                const effortButtons = this.dom.reasoningEffortGroup.querySelectorAll('.segment-btn');
+                effortButtons.forEach(btn => {
+                    if (btn.dataset.effort === this.state.reasoningEffort) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+
+                // Modalities selector group & capability validation
+                const currentModelObj = MODEL_REGISTRY.find(m => m.id === this.state.selectedModel);
+                const isMultimodalCapable = currentModelObj ? currentModelObj.multimodal !== false : true;
+                
+                const multimodalBtn = this.dom.modalitiesGroup.querySelector('[data-mod="image-text"]');
+                const imageOnlyBtn = this.dom.modalitiesGroup.querySelector('[data-mod="image"]');
+                
+                if (!isMultimodalCapable) {
+                    this.state.modalities = 'image';
+                    if (multimodalBtn) {
+                        multimodalBtn.style.opacity = '0.3';
+                        multimodalBtn.style.pointerEvents = 'none';
+                        multimodalBtn.classList.remove('active');
+                    }
+                    if (imageOnlyBtn) {
+                        imageOnlyBtn.classList.add('active');
+                    }
+                } else {
+                    if (multimodalBtn) {
+                        multimodalBtn.style.opacity = '1';
+                        multimodalBtn.style.pointerEvents = 'auto';
+                    }
+                }
+
+                const modButtons = this.dom.modalitiesGroup.querySelectorAll('.segment-btn');
+                modButtons.forEach(btn => {
+                    if (btn.dataset.mod === this.state.modalities) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+
+                // Aspect Selection Settings
+                const aspectButtons = this.dom.aspectMatrix.querySelectorAll('.aspect-btn');
+                aspectButtons.forEach(btn => {
+                    if (btn.dataset.ratio === this.state.aspectRatio) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+
+                // Update Local AI UI state
+                this.updateLocalAIUI();
+            }
+
+            toggleCustomModelContainer() {
+                if (this.state.selectedModel === 'custom-pipeline-entry') {
+                    this.dom.customModelContainer.style.display = 'flex';
+                } else {
+                    this.dom.customModelContainer.style.display = 'none';
+                }
+            }
+
+            toggleReasoningEffortContainer() {
+                if (this.state.selectedModel.includes('riverflow')) {
+                    this.dom.reasoningEffortContainer.style.display = 'flex';
+                } else {
+                    this.dom.reasoningEffortContainer.style.display = 'none';
+                }
+            }
+
+            bindEvents() {
+                // Engine operational switch bindings
+                this.dom.modeBtnMock.addEventListener('click', () => this.updateEngineMode('mock'));
+                this.dom.modeBtnLive.addEventListener('click', () => this.updateEngineMode('live'));
+
+                // Key credentials listeners
+                const saveProxyKey = (val) => {
+                    this.state.apiKeyProxy = val.trim();
+                    this.db.setSetting('apiKeyProxy', this.state.apiKeyProxy);
+                };
+                this.dom.apiKeyProxyInput.addEventListener('input', (e) => saveProxyKey(e.target.value));
+                this.dom.apiKeyProxyInput.addEventListener('change', (e) => saveProxyKey(e.target.value));
+
+                this.dom.apiKeyProxyVisibility.addEventListener('click', () => {
+                    const input = this.dom.apiKeyProxyInput;
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        this.dom.apiKeyProxyVisibility.style.color = 'var(--accent)';
+                    } else {
+                        input.type = 'password';
+                        this.dom.apiKeyProxyVisibility.style.color = 'var(--fg-secondary)';
+                    }
+                });
+
+                const saveORKey = (val) => {
+                    this.state.apiKeyOpenRouter = val.trim();
+                    this.db.setSetting('apiKeyOpenRouter', this.state.apiKeyOpenRouter);
+                };
+                this.dom.apiKeyOpenRouterInput.addEventListener('input', (e) => saveORKey(e.target.value));
+                this.dom.apiKeyOpenRouterInput.addEventListener('change', (e) => saveORKey(e.target.value));
+
+                this.dom.apiKeyOpenRouterVisibility.addEventListener('click', () => {
+                    const input = this.dom.apiKeyOpenRouterInput;
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        this.dom.apiKeyOpenRouterVisibility.style.color = 'var(--accent)';
+                    } else {
+                        input.type = 'password';
+                        this.dom.apiKeyOpenRouterVisibility.style.color = 'var(--fg-secondary)';
+                    }
+                });
+
+                // Model pipeline bindings
+                this.dom.modelSelect.addEventListener('change', (e) => {
+                    this.state.selectedModel = e.target.value;
+                    this.db.setSetting('selectedModel', this.state.selectedModel);
+                    this.toggleCustomModelContainer();
+                    this.toggleReasoningEffortContainer();
+                    this.syncStateToUI();
+                });
+
+                // Reasoning Effort bindings
+                this.dom.reasoningEffortGroup.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.segment-btn');
+                    if (!btn) return;
+                    this.state.reasoningEffort = btn.dataset.effort;
+                    this.db.setSetting('reasoningEffort', this.state.reasoningEffort);
+
+                    this.dom.reasoningEffortGroup.querySelectorAll('.segment-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+
+                this.dom.customModelInput.addEventListener('input', (e) => {
+                    this.state.customModelId = e.target.value.trim();
+                    this.db.setSetting('customModelId', this.state.customModelId);
+                });
+
+                // Modalities configuration buttons click action
+                this.dom.modalitiesGroup.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.segment-btn');
+                    if (!btn) return;
+                    this.state.modalities = btn.dataset.mod;
+                    this.db.setSetting('modalities', this.state.modalities);
+                    
+                    this.dom.modalitiesGroup.querySelectorAll('.segment-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+
+                // Aspect Selection button bindings
+                this.dom.aspectMatrix.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.aspect-btn');
+                    if (!btn) return;
+                    this.state.aspectRatio = btn.dataset.ratio;
+                    this.db.setSetting('aspectRatio', this.state.aspectRatio);
+
+                    this.dom.aspectMatrix.querySelectorAll('.aspect-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+
+                // Purge active storage history index
+                this.dom.purgeHistory.addEventListener('click', async () => {
+                    if (confirm("Are you certain you wish to purge the generations context history index? This action is permanent.")) {
+                        await this.db.clearHistory();
+                        await this.refreshHistoryShelf();
+                        ToastNotificationHUD.show("Local generations index database cleared.", "info");
+                    }
+                });
+
+                // Command modifiers listener triggers prompt submission
+                this.dom.promptTextbox.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                        e.preventDefault();
+                        this.executeDiffusionProcess();
+                    }
+                });
+
+                // Action controls layout buttons
+                this.dom.submitPromptBtn.addEventListener('click', () => this.executeDiffusionProcess());
+                this.dom.inspireBtn.addEventListener('click', () => this.populateInspiration());
+                
+                // Toggle AI prompt options dropdown
+                this.dom.aiPromptGenBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isVisible = this.dom.aiPromptDropdown.style.display === 'flex';
+                    this.dom.aiPromptDropdown.style.display = isVisible ? 'none' : 'flex';
+                });
+
+                // Dropdown choices
+                this.dom.aiPromptOptDesc.addEventListener('click', () => {
+                    this.dom.aiPromptDropdown.style.display = 'none';
+                    this.openDescriptionModal();
+                });
+
+                this.dom.aiPromptOptRand.addEventListener('click', () => {
+                    this.dom.aiPromptDropdown.style.display = 'none';
+                    this.generateAIPrompt(null);
+                });
+
+                // Description modal interactions
+                this.dom.descriptionModalCancel.addEventListener('click', () => this.closeDescriptionModal());
+                this.dom.descriptionModalSubmit.addEventListener('click', () => {
+                    const desc = this.dom.descriptionModalInput.value.trim();
+                    this.closeDescriptionModal();
+                    if (desc) {
+                        this.generateAIPrompt(desc);
+                    } else {
+                        ToastNotificationHUD.show("Описание не может быть пустым.", "error");
+                    }
+                });
+
+                this.dom.descriptionModalInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        const desc = this.dom.descriptionModalInput.value.trim();
+                        this.closeDescriptionModal();
+                        if (desc) {
+                            this.generateAIPrompt(desc);
+                        } else {
+                            ToastNotificationHUD.show("Описание не может быть пустым.", "error");
+                        }
+                    }
+                });
+
+                // Close dropdown on clicking anywhere outside
+                document.addEventListener('click', (e) => {
+                    if (this.dom.aiPromptDropdown && !this.dom.aiPromptDropdown.contains(e.target) && e.target !== this.dom.aiPromptGenBtn && !this.dom.aiPromptGenBtn.contains(e.target)) {
+                        this.dom.aiPromptDropdown.style.display = 'none';
+                    }
+                });
+
+                // Prompt transformations
+                this.dom.aiPromptExpandBtn.addEventListener('click', () => this.executePromptTransformation('expand'));
+                this.dom.aiPromptShortenBtn.addEventListener('click', () => this.executePromptTransformation('shorten'));
+                this.dom.aiPromptModifyBtn.addEventListener('click', () => {
+                    const val = this.dom.promptTextbox.value.trim();
+                    if (!val) {
+                        ToastNotificationHUD.show("Поле ввода промпта пустое.", "error");
+                        return;
+                    }
+                    this.openModifyModal();
+                });
+
+                // Modify modal actions
+                this.dom.modifyModalCancel.addEventListener('click', () => this.closeModifyModal());
+                this.dom.modifyModalSubmit.addEventListener('click', () => {
+                    const val = this.dom.modifyModalInput.value.trim();
+                    this.closeModifyModal();
+                    if (val) {
+                        this.executePromptTransformation('modify', val);
+                    } else {
+                        ToastNotificationHUD.show("Инструкция не может быть пустой.", "error");
+                    }
+                });
+                this.dom.modifyModalInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        const val = this.dom.modifyModalInput.value.trim();
+                        this.closeModifyModal();
+                        if (val) {
+                            this.executePromptTransformation('modify', val);
+                        } else {
+                            ToastNotificationHUD.show("Инструкция не может быть пустой.", "error");
+                        }
+                    }
+                });
+
+                this.dom.downloadLocalAIBtn.addEventListener('click', () => this.downloadLocalAI());
+                this.dom.deleteLocalAIBtn.addEventListener('click', () => this.deleteLocalModel());
+                this.dom.newCanvasBtn.addEventListener('click', () => this.startNewCanvas());
+
+                // Reference Base Image binding triggers
+                this.dom.uploadBaseBtn.addEventListener('click', () => this.dom.baseImageFileInput.click());
+                
+                this.dom.baseImageFileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) this.handleBaseImageUpload(file);
+                });
+
+                this.dom.clearBaseBtn.addEventListener('click', () => {
+                    this.state.baseImageBase64 = null;
+                    this.state.baseImageId = null;
+                    this.dom.baseImageFileInput.value = '';
+                    this.updateBaseImageUI();
+                    ToastNotificationHUD.show("Reference base image detached.", "info");
+                });
+
+                // Overlay actions listeners
+                this.dom.actionSetBase.addEventListener('click', () => this.setCurrentlyActiveAsBase());
+                this.dom.actionDownload.addEventListener('click', () => this.downloadActiveAsset());
+                this.dom.actionCopy.addEventListener('click', () => this.copyActiveBase64ToClipboard());
+                this.dom.actionReuse.addEventListener('click', () => {
+                    if (this.state.activeImage) {
+                        this.dom.promptTextbox.value = this.state.activeImage.prompt;
+                        ToastNotificationHUD.show("Prompt state re-populated into visual workspace.", "info");
+                    }
+                });
+
+                // Lightbox dynamic triggers
+                this.dom.viewportActiveImage.addEventListener('click', () => {
+                    if (this.state.activeImage) this.openLightbox();
+                });
+                this.dom.lightboxClose.addEventListener('click', () => this.closeLightbox());
+                this.dom.lightboxPortal.addEventListener('click', (e) => {
+                    if (e.target === this.dom.lightboxPortal) this.closeLightbox();
+                });
+            }
+
+            updateEngineMode(mode) {
+                this.state.engineMode = mode;
+                this.db.setSetting('engineMode', mode);
+                this.syncStateToUI();
+                ToastNotificationHUD.show(`Switched operational workflow loop: ${mode === 'live' ? 'Live Production Gateway' : 'Interactive Sandbox'}`, 'info');
+            }
+
+            populateInspiration() {
+                const randomPrompt = INSPIRATION_PROMPTS[Math.floor(Math.random() * INSPIRATION_PROMPTS.length)];
+                this.dom.promptTextbox.value = randomPrompt;
+                ToastNotificationHUD.show("Creative prompt trace injected.", "info");
+            }
+
+            static generateProceduralPrompt(userDescription = null) {
+                const subjects = [
+                    "A cosmic jellyfish floating through a futuristic neon metropolitan skyline",
+                    "An ancient stone castle integrated into a giant glowing mystical tree",
+                    "A cybernetic samurai warrior meditating under a cherry blossom tree made of glass",
+                    "An astronaut discovery of an ancient library on a remote frozen planet",
+                    "A mystical fox with multiple tails made of pure starlight walking on water",
+                    "Flowing abstract ribbons of polished brass, copper, and glowing liquid plasma",
+                    "A steam-powered laboratory filled with floating glowing brass gears and clockwork machinery",
+                    "A magnificent coral reef thriving inside a giant floating glass sphere in space"
+                ];
+                const styles = [
+                    "moody cinematic illumination, Unreal Engine 5 render, highly detailed",
+                    "surreal digital matte painting, dramatic golden hour backlight",
+                    "high-fidelity vaporwave cyberpunk aesthetic, octane render, neon glow",
+                    "breathtaking volumetric lighting, photorealistic details, award-winning concept art",
+                    "futuristic architectural render, smooth obsidian surfaces, ambient occlusion"
+                ];
+                const modifiers = [
+                    "sharp focus, intricate patterns, 8k resolution, cosmic dust",
+                    "mystical atmosphere, dramatic reflections, masterpiece quality",
+                    "ultra-realistic textures, octane dispersion shaders, premium visual style",
+                    "cybernetic details, hyper-fine geometry structure, cinematic grading"
+                ];
+                
+                const sub = userDescription ? `A majestic representation of ${userDescription}` : subjects[Math.floor(Math.random() * subjects.length)];
+                const sty = styles[Math.floor(Math.random() * styles.length)];
+                const mod = modifiers[Math.floor(Math.random() * modifiers.length)];
+                
+                return `${sub}, ${sty}, ${mod}`;
+            }
+
+            async tryLoadLocalAIOnStartup() {
+                const installed = await this.db.getSetting('localAIInstalled');
+                if (installed) {
+                    this.state.localAIInstalled = true;
+                    this.updateLocalAIUI();
+                }
+            }
+
+            async downloadLocalAI() {
+                const btn = this.dom.downloadLocalAIBtn;
+                const originalText = btn.innerHTML;
+                
+                try {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.7';
+                    this.updateLocalAIStatus("Downloading...", "var(--accent)");
+                    
+                    ToastNotificationHUD.show("Loading Hugging Face Transformers module...", "info");
+                    const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0');
+                    env.allowLocalModels = false;
+                    
+                    ToastNotificationHUD.show("Initiating SmolLM2 135M parameter caching...", "info");
+                    
+                    this.localGeneratorInstance = await pipeline('text-generation', 'onnx-community/SmolLM2-135M-Instruct-ONNX', {
+                        dtype: 'q4', // force quantized version (downloads ~70-95MB only!)
+                        progress_callback: (progress) => {
+                            if (progress.status === 'progress') {
+                                this.updateLocalDownloadProgress(progress);
+                            }
+                        }
+                    });
+
+                    this.state.localAIInstalled = true;
+                    await this.db.setSetting('localAIInstalled', true);
+                    this.updateLocalAIUI();
+                    
+                    ToastNotificationHUD.show("Local AI Model cached successfully!", "success");
+                } catch (err) {
+                    console.error(err);
+                    this.updateLocalAIStatus("Error", "#ef4444");
+                    ToastNotificationHUD.show("Local AI download failed: " + err.message, "error");
+                } finally {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.innerHTML = originalText;
+                    this.dom.localAIProgressContainer.style.display = 'none';
+                }
+            }
+
+            updateLocalDownloadProgress(progress) {
+                if (!progress || progress.status !== 'progress') return;
+                
+                this.dom.localAIProgressContainer.style.display = 'flex';
+                const file = progress.file || 'model_weights.onnx';
+                this.dom.localAIFile.textContent = file.length > 25 ? '...' + file.slice(-22) : file;
+                
+                // Intelligently handle cases where Content-Length is missing from CDN response headers
+                if (progress.progress !== undefined && !isNaN(progress.progress)) {
+                    const percent = Math.round(progress.progress);
+                    this.dom.localAIPercent.textContent = `${percent}%`;
+                    this.dom.localAIBar.style.width = `${percent}%`;
+                } else if (progress.loaded !== undefined && !isNaN(progress.loaded)) {
+                    // Fallback streaming metric: display total downloaded payload size in MBs
+                    const loadedMB = (progress.loaded / (1024 * 1024)).toFixed(1);
+                    this.dom.localAIPercent.textContent = `${loadedMB} MB`;
+                    this.dom.localAIBar.style.width = '100%'; // Full width pulse bar to convey active stream
+                }
+            }
+
+            updateLocalAIUI() {
+                const statusEl = this.dom.localAIStatus;
+                const downloadBtn = this.dom.downloadLocalAIBtn;
+                const deleteBtn = this.dom.deleteLocalAIBtn;
+
+                if (!statusEl || !downloadBtn || !deleteBtn) return;
+
+                if (this.state.localAIInstalled) {
+                    statusEl.textContent = "Cached";
+                    statusEl.style.color = "#10b981";
+                    downloadBtn.textContent = "Обновить ИИ";
+                    deleteBtn.style.display = 'block';
+                } else {
+                    statusEl.textContent = "Not Loaded";
+                    statusEl.style.color = "var(--fg-mute)";
+                    downloadBtn.textContent = "Скачать локальную ИИ";
+                    deleteBtn.style.display = 'none';
+                }
+            }
+
+            updateLocalAIStatus(text, color) {
+                const statusEl = this.dom.localAIStatus;
+                if (statusEl) {
+                    statusEl.textContent = text;
+                    statusEl.style.color = color;
+                }
+            }
+
+            async deleteLocalModel() {
+                try {
+                    const cacheExists = await caches.has('transformers-cache');
+                    if (cacheExists) {
+                        await caches.delete('transformers-cache');
+                    }
+                    this.localGeneratorInstance = null;
+                    this.state.localAIInstalled = false;
+                    await this.db.setSetting('localAIInstalled', false);
+                    this.updateLocalAIUI();
+                    ToastNotificationHUD.show("Local model cache cleared successfully.", "success");
+                } catch (err) {
+                    console.error(err);
+                    ToastNotificationHUD.show("Failed to remove local cache: " + err.message, "error");
+                }
+            }
+
+            openDescriptionModal() {
+                const modal = this.dom.descriptionModal;
+                if (!modal) return;
+                modal.style.display = 'flex';
+                this.dom.descriptionModalInput.value = '';
+                setTimeout(() => {
+                    modal.style.opacity = '1';
+                    this.dom.descriptionModalInput.focus();
+                }, 20);
+            }
+
+            closeDescriptionModal() {
+                const modal = this.dom.descriptionModal;
+                if (!modal) return;
+                modal.style.opacity = '0';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 400);
+            }
+
+            openModifyModal() {
+                const modal = this.dom.modifyModal;
+                if (!modal) return;
+                modal.style.display = 'flex';
+                this.dom.modifyModalInput.value = '';
+                setTimeout(() => {
+                    modal.style.opacity = '1';
+                    this.dom.modifyModalInput.focus();
+                }, 20);
+            }
+
+            closeModifyModal() {
+                const modal = this.dom.modifyModal;
+                if (!modal) return;
+                modal.style.opacity = '0';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 400);
+            }
+
+            static generateSandboxTransform(currentPrompt, operation, instruction = null) {
+                if (operation === 'expand') {
+                    return `${currentPrompt}, highly detailed matte painting, sharp focus, atmospheric volumetric lighting, 8k cinematic grade render`;
+                } else if (operation === 'shorten') {
+                    const words = currentPrompt.split(' ');
+                    return words.slice(0, Math.min(words.length, 5)).join(' ') + " aesthetic concept";
+                } else if (operation === 'modify') {
+                    return `${currentPrompt}, modified with: ${instruction}`;
+                }
+                return currentPrompt;
+            }
+
+            async runLocalPromptTransform(currentPrompt, operation, instruction = null) {
+                if (!this.localGeneratorInstance) {
+                    this.updateLocalAIStatus("Loading...", "var(--accent)");
+                    ToastNotificationHUD.show("Loading Local AI weights from browser cache...", "info");
+                    
+                    const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0');
+                    env.allowLocalModels = false;
+                    
+                    this.localGeneratorInstance = await pipeline('text-generation', 'onnx-community/SmolLM2-135M-Instruct-ONNX', {
+                        dtype: 'q4',
+                        progress_callback: (progress) => {
+                            if (progress.status === 'progress') {
+                                this.updateLocalDownloadProgress(progress);
+                            }
+                        }
+                    });
+                }
+                
+                this.updateLocalAIStatus("Processing...", "var(--accent)");
+                this.dom.localAIProgressContainer.style.display = 'none';
+
+                let systemPrompt = "";
+                let userPrompt = "";
+
+                if (operation === 'expand') {
+                    systemPrompt = "You are an elite prompt engineering AI. Expand and enrich the user's prompt in English. Output ONLY the descriptive prompt, up to 35 words.";
+                    userPrompt = `Expand: "${currentPrompt}"`;
+                } else if (operation === 'shorten') {
+                    systemPrompt = "You are an elite prompt engineering AI. Shorten and condense the user's prompt in English. Output ONLY the shortened prompt, up to 15 words.";
+                    userPrompt = `Shorten: "${currentPrompt}"`;
+                } else if (operation === 'modify') {
+                    systemPrompt = "You are an elite prompt engineering AI. Modify the prompt according to edit instructions in English. Output ONLY the modified prompt, up to 35 words.";
+                    userPrompt = `Original: "${currentPrompt}"\nEdit: "${instruction}"`;
+                }
+
+                const messages = [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: userPrompt }
+                ];
+
+                const out = await this.localGeneratorInstance(messages, {
+                    max_new_tokens: 50,
+                    temperature: 0.7,
+                    do_sample: true
+                });
+
+                this.updateLocalAIUI();
+
+                let textResult = '';
+                const generated = out[0]?.generated_text;
+                if (Array.isArray(generated)) {
+                    const lastMsg = generated[generated.length - 1];
+                    textResult = lastMsg?.content || '';
+                } else if (typeof generated === 'string') {
+                    textResult = generated;
+                    if (textResult.includes("assistant\n")) {
+                        textResult = textResult.split("assistant\n").pop();
+                    }
+                }
+                return textResult.trim().replace(/^"|"$/g, '');
+            }
+
+            async executePromptTransformation(operation, instruction = null) {
+                if (this.state.isGenerating) return;
+
+                const currentPrompt = this.dom.promptTextbox.value.trim();
+                if (!currentPrompt) {
+                    ToastNotificationHUD.show("Поле ввода промпта пустое.", "error");
+                    return;
+                }
+
+                let targetBtn = null;
+                if (operation === 'expand') targetBtn = this.dom.aiPromptExpandBtn;
+                else if (operation === 'shorten') targetBtn = this.dom.aiPromptShortenBtn;
+                else if (operation === 'modify') targetBtn = this.dom.aiPromptModifyBtn;
+
+                if (!targetBtn) return;
+                const originalText = targetBtn.innerHTML;
+
+                try {
+                    targetBtn.disabled = true;
+                    targetBtn.style.opacity = '0.7';
+                    targetBtn.innerHTML = `<span style="display:inline-block; animation:spin 1s linear infinite; margin-right:4px;">↻</span> Processing...`;
+
+                    let transformed = '';
+
+                    if (this.state.localAIInstalled) {
+                        ToastNotificationHUD.show("Running Local AI transformations...", "info");
+                        transformed = await this.runLocalPromptTransform(currentPrompt, operation, instruction);
+                    } else if (this.state.engineMode === 'live') {
+                        let useOpenRouter = true;
+                        let targetKey = this.state.apiKeyOpenRouter;
+                        
+                        if (!targetKey && this.state.apiKeyProxy) {
+                            targetKey = this.state.apiKeyProxy;
+                            useOpenRouter = false;
+                        }
+
+                        if (!targetKey) {
+                            throw new Error("Authentication credentials are required in Live mode. Please configure your key or switch to Sandbox.");
+                        }
+
+                        ToastNotificationHUD.show("Transmitting prompt payload to Llama 3.2 (1B)...", "info");
+                        transformed = await GatewayAPIController.transformPrompt(targetKey, useOpenRouter, currentPrompt, operation, instruction);
+                    } else {
+                        await new Promise(resolve => setTimeout(resolve, 600));
+                        transformed = AppController.generateSandboxTransform(currentPrompt, operation, instruction);
+                    }
+
+                    this.dom.promptTextbox.value = transformed;
+                    ToastNotificationHUD.show("Prompt transformation applied successfully.", "success");
+                } catch (err) {
+                    console.error(err);
+                    ToastNotificationHUD.show(err.message || "Transformation failed.", "error");
+                } finally {
+                    targetBtn.disabled = false;
+                    targetBtn.style.opacity = '1';
+                    targetBtn.innerHTML = originalText;
+                }
+            }
+
+            async runLocalAIGeneration(userDescription = null) {
+                if (!this.localGeneratorInstance) {
+                    this.updateLocalAIStatus("Loading...", "var(--accent)");
+                    ToastNotificationHUD.show("Loading Local AI weights from browser cache...", "info");
+                    
+                    const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0');
+                    env.allowLocalModels = false;
+                    
+                    this.localGeneratorInstance = await pipeline('text-generation', 'onnx-community/SmolLM2-135M-Instruct-ONNX', {
+                        dtype: 'q4',
+                        progress_callback: (progress) => {
+                            if (progress.status === 'progress') {
+                                this.updateLocalDownloadProgress(progress);
+                            }
+                        }
+                    });
+                }
+                
+                this.updateLocalAIStatus("Generating...", "var(--accent)");
+                this.dom.localAIProgressContainer.style.display = 'none';
+
+                const systemPrompt = "You are an elite creative prompt generator. Generate ONE highly artistic, detailed, and dramatic scene description in English for image generation (up to 30 words). Return ONLY the prompt, no explanations.";
+                
+                let userPrompt = "Generate a brilliant creative prompt.";
+                if (userDescription) {
+                    userPrompt = `Expand this brief idea into a highly creative and detailed image prompt in English (up to 30 words): "${userDescription}". Return only the prompt, no explanations.`;
+                }
+
+                const messages = [
+                    {
+                        role: "system",
+                        content: systemPrompt
+                    },
+                    {
+                        role: "user",
+                        content: userPrompt
+                    }
+                ];
+
+                const out = await this.localGeneratorInstance(messages, {
+                    max_new_tokens: 50,
+                    temperature: 0.85,
+                    do_sample: true
+                });
+
+                this.updateLocalAIUI();
+
+                let textResult = '';
+                const generated = out[0]?.generated_text;
+                if (Array.isArray(generated)) {
+                    const lastMsg = generated[generated.length - 1];
+                    textResult = lastMsg?.content || '';
+                } else if (typeof generated === 'string') {
+                    textResult = generated;
+                    if (textResult.includes("assistant\n")) {
+                        textResult = textResult.split("assistant\n").pop();
+                    }
+                }
+                return textResult.trim().replace(/^"|"$/g, '');
+            }
+
+            async generateAIPrompt(userDescription = null) {
+                if (this.state.isGenerating) return;
+
+                const btn = this.dom.aiPromptGenBtn;
+                const originalText = btn.innerHTML;
+                
+                try {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.7';
+                    btn.innerHTML = `<span style="display:inline-block; animation:spin 1s linear infinite; margin-right:6px;">↻</span> Generating...`;
+
+                    let generatedPrompt = '';
+
+                    // Prioritize local offline AI model if cached and ready
+                    if (this.state.localAIInstalled) {
+                        generatedPrompt = await this.runLocalAIGeneration(userDescription);
+                    } else if (this.state.engineMode === 'live') {
+                        // Determine target API Gateway and corresponding credential key
+                        let useOpenRouter = true;
+                        let targetKey = this.state.apiKeyOpenRouter;
+                        
+                        // Smart routing fallback
+                        if (!targetKey && this.state.apiKeyProxy) {
+                            targetKey = this.state.apiKeyProxy;
+                            useOpenRouter = false;
+                        }
+
+                        if (!targetKey) {
+                            throw new Error("Authentication credentials are required in Live mode. Please configure your key or switch to Sandbox.");
+                        }
+
+                        ToastNotificationHUD.show("Contacting Llama 3.2 (1B) node...", "info");
+                        generatedPrompt = await GatewayAPIController.generatePrompt(targetKey, useOpenRouter, userDescription);
+                    } else {
+                        // Instant offline fallback for Sandbox Mode
+                        await new Promise(resolve => setTimeout(resolve, 800));
+                        generatedPrompt = AppController.generateProceduralPrompt(userDescription);
+                    }
+
+                    this.dom.promptTextbox.value = generatedPrompt;
+                    ToastNotificationHUD.show("Creative prompt successfully synthesized.", "success");
+                } catch (err) {
+                    console.error(err);
+                    ToastNotificationHUD.show(err.message || "Failed to generate prompt from text node.", "error");
+                } finally {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.innerHTML = originalText;
+                }
+            }
+
+            startNewCanvas() {
+                this.state.activeImage = null;
+                this.state.baseImageBase64 = null;
+                this.state.baseImageId = null;
+                
+                this.dom.promptTextbox.value = '';
+                this.updateBaseImageUI();
+                
+                this.dom.viewportDefaultStage.style.display = 'flex';
+                this.dom.viewportRenderStage.classList.remove('active');
+                this.dom.evolutionLineageContainer.style.display = 'none';
+                
+                ToastNotificationHUD.show("New workspace sheet initialized.", "success");
+            }
+
+            async refreshHistoryShelf() {
+                const history = await this.db.getHistory();
+                
+                if (history.length === 0) {
+                    this.dom.historyCarousel.innerHTML = `<div class="empty-history-indicator">No generated assets registered in this session context.</div>`;
+                    return;
+                }
+
+                this.dom.historyCarousel.innerHTML = history.map(item => `
+                    <div class="history-card" data-id="${item.id}">
+                        <img src="${item.imageUrl}" alt="Log Object">
+                        <div class="history-card-hover">
+                            <button class="history-card-delete" data-id="${item.id}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Register event listeners directly on created elements inside shelf
+                const cards = this.dom.historyCarousel.querySelectorAll('.history-card');
+                cards.forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (e.target.closest('.history-card-delete')) return;
+                        const id = parseInt(card.dataset.id);
+                        const item = history.find(h => h.id === id);
+                        if (item) this.loadHistoryItemToViewport(item);
+                    });
+                });
+
+                const deleteButtons = this.dom.historyCarousel.querySelectorAll('.history-card-delete');
+                deleteButtons.forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        const id = parseInt(btn.dataset.id);
+                        await this.db.deleteHistoryItem(id);
+                        await this.refreshHistoryShelf();
+                        ToastNotificationHUD.show("Asset removed from studio session context.", "info");
+                    });
+                });
+            }
+
+            async calculateLineage(item) {
+                const trail = [];
+                let current = item;
+                const history = await this.db.getHistory();
+                
+                while (current) {
+                    trail.unshift(current);
+                    if (current.parentId) {
+                        const parent = history.find(h => h.id === current.parentId);
+                        current = parent || null;
+                    } else {
+                        current = null;
+                    }
+                }
+                return trail;
+            }
+
+            async renderLineageTrail(item) {
+                const trail = await this.calculateLineage(item);
+                const container = this.dom.evolutionLineageContainer;
+                const trailContainer = this.dom.evolutionLineageTrail;
+                
+                if (trail.length <= 1) {
+                    container.style.display = 'none';
+                    return;
+                }
+
+                container.style.display = 'flex';
+                trailContainer.innerHTML = trail.map((node, index) => {
+                    const isActive = node.id === item.id;
+                    return `
+                        <div class="lineage-node" data-id="${node.id}" style="width: 24px; height: 24px; border-radius: 50%; overflow: hidden; border: 1.5px solid ${isActive ? 'var(--accent)' : 'var(--border-primary)'}; cursor: pointer; transition: var(--transition-rapid); position: relative; box-shadow: ${isActive ? '0 0 8px var(--accent)' : 'none'};" data-tooltip="v${index + 1}: ${node.prompt.slice(0, 30)}...">
+                            <img src="${node.imageUrl}" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        ${index < trail.length - 1 ? `<span style="font-size: 10px; color: var(--fg-mute); font-family: var(--font-mono);">→</span>` : ''}
+                    `;
+                }).join('');
+
+                trailContainer.querySelectorAll('.lineage-node').forEach(nodeEl => {
+                    nodeEl.addEventListener('click', async () => {
+                        const id = parseInt(nodeEl.dataset.id);
+                        const history = await this.db.getHistory();
+                        const matched = history.find(h => h.id === id);
+                        if (matched) this.loadHistoryItemToViewport(matched);
+                    });
+                });
+            }
+
+            handleBaseImageUpload(file) {
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        // Max dimension optimized to 384px to prevent large base64 payload size errors
+                        const maxDim = 384;
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        if (width > maxDim || height > maxDim) {
+                            if (width > height) {
+                                height = Math.round((height * maxDim) / width);
+                                width = maxDim;
+                            } else {
+                                width = Math.round((width * maxDim) / height);
+                                height = maxDim;
+                            }
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // Compression format is JPEG at 0.65 to drastically minimize base64 payload footprint
+                        this.state.baseImageBase64 = canvas.toDataURL('image/jpeg', 0.65);
+                        this.state.baseImageId = null;
+                        this.updateBaseImageUI();
+                        ToastNotificationHUD.show("Reference base image established and compressed.", "success");
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            updateBaseImageUI() {
+                if (this.state.baseImageBase64) {
+                    this.dom.baseImagePreview.innerHTML = `<img src="${this.state.baseImageBase64}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">`;
+                    this.dom.clearBaseBtn.style.display = 'block';
+                } else {
+                    this.dom.baseImagePreview.innerHTML = `<span style="font-size: 8px; color: var(--fg-mute); font-family: var(--font-mono); text-transform: uppercase;">None</span>`;
+                    this.dom.clearBaseBtn.style.display = 'none';
+                }
+            }
+
+            setCurrentlyActiveAsBase() {
+                if (!this.state.activeImage) return;
+                
+                const img = new Image();
+                img.onload = () => {
+                    const maxDim = 384;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    this.state.baseImageBase64 = canvas.toDataURL('image/jpeg', 0.65);
+                    this.state.baseImageId = this.state.activeImage.id;
+                    this.updateBaseImageUI();
+                    ToastNotificationHUD.show("Canvas output established as optimized editing parent node.", "info");
+                };
+                img.onerror = () => {
+                    this.state.baseImageBase64 = this.state.activeImage.imageUrl;
+                    this.state.baseImageId = this.state.activeImage.id;
+                    this.updateBaseImageUI();
+                    ToastNotificationHUD.show("Canvas output established as editing parent node.", "info");
+                };
+                img.src = this.state.activeImage.imageUrl;
+            }
+
+            async loadHistoryItemToViewport(item) {
+                this.state.activeImage = item;
+                this.dom.viewportActiveImage.src = item.imageUrl;
+                
+                // Restore original generation configs and sync UI components
+                this.state.aspectRatio = item.aspectRatio || '1:1';
+                this.state.reasoningEffort = item.reasoningEffort || 'medium';
+                this.state.modalities = item.modalities || 'image';
+                this.state.selectedModel = item.model;
+                this.dom.promptTextbox.value = item.prompt;
+                
+                if (item.text) {
+                    this.dom.multimodalTextContent.textContent = item.text;
+                    this.dom.multimodalTextOverlay.style.display = 'block';
+                } else {
+                    this.dom.multimodalTextOverlay.style.display = 'none';
+                }
+                
+                this.dom.viewportDefaultStage.style.display = 'none';
+                this.dom.viewportRenderStage.classList.add('active');
+                
+                // Refresh control widgets and toggles visual states
+                this.syncStateToUI();
+                
+                // Draw version lineage horizontal path on viewport top
+                await this.renderLineageTrail(item);
+                
+                ToastNotificationHUD.show("Selected context asset re-visualized.", "info");
+            }
+
+            async executeDiffusionProcess() {
+                if (this.state.isGenerating) return;
+
+                const promptText = this.dom.promptTextbox.value.trim();
+                if (!promptText) {
+                    ToastNotificationHUD.show("Please enter a visual descriptive prompt constraint.", "error");
+                    return;
+                }
+
+                // Check API credential conditions if mode is Live
+                let activeModel = this.state.selectedModel;
+                if (this.state.selectedModel === 'custom-pipeline-entry') {
+                    activeModel = this.state.customModelId.trim();
+                    if (!activeModel) {
+                        ToastNotificationHUD.show("Please specify a valid custom pipeline model path identifier.", "error");
+                        return;
+                    }
+                }
+
+                this.state.isGenerating = true;
+                this.setGeneratingUIState(true);
+
+                try {
+                    let resultImage = '';
+                    let resultText = '';
+
+                    if (this.state.engineMode === 'live') {
+                        const isFreeModel = activeModel.includes(':free');
+                        let useOpenRouter = isFreeModel;
+                        let targetKey = isFreeModel ? this.state.apiKeyOpenRouter : this.state.apiKeyProxy;
+                        
+                        // Intelligent Gateway Fallback Routing
+                        if (!targetKey && !isFreeModel && this.state.apiKeyOpenRouter) {
+                            targetKey = this.state.apiKeyOpenRouter;
+                            useOpenRouter = true;
+                        }
+                        if (!targetKey && isFreeModel && this.state.apiKeyProxy) {
+                            targetKey = this.state.apiKeyProxy;
+                            useOpenRouter = false;
+                        }
+
+                        const keyLabel = useOpenRouter ? "OpenRouter Gateway" : "ProxyAPI Gateway";
+                        if (!targetKey) {
+                            throw new Error(`Authentication credentials for ${keyLabel} are missing. Please enter your API credentials or select Interactive Sandbox mode.`);
+                        }
+
+                        this.updatePipelineStatus("API Gateway handshaking...", `Contacting secure route endpoint (${useOpenRouter ? 'OpenRouter Direct' : 'ProxyAPI Node'})`, 15);
+                        
+                        // Enforce modality constraints based on selected model compatibility
+                        const currentModelObj = MODEL_REGISTRY.find(m => m.id === activeModel);
+                        const isMultimodalCapable = currentModelObj ? currentModelObj.multimodal !== false : true;
+                        
+                        const modalitiesPayload = (isMultimodalCapable && this.state.modalities === 'image-text') ? ["image", "text"] : ["image"];
+                        
+                        this.updatePipelineStatus("Processing Latent Tensors...", "Executing deep diffusion steps on active server cluster", 45);
+                        
+                        const extraParams = {};
+                        if (activeModel.includes('riverflow')) {
+                            extraParams.reasoning = {
+                                effort: this.state.reasoningEffort
+                            };
+                        }
+
+                        if (this.state.baseImageBase64 && !isMultimodalCapable) {
+                            ToastNotificationHUD.show("Active model lacks multimodal vision support. Processing text-to-image prompt only.", "info");
+                        }
+
+                        const outcome = await GatewayAPIController.diffuse(
+                            targetKey, 
+                            activeModel, 
+                            promptText, 
+                            modalitiesPayload, 
+                            extraParams, 
+                            useOpenRouter,
+                            this.state.baseImageBase64,
+                            this.state.aspectRatio,
+                            isMultimodalCapable
+                        );
+                        resultImage = outcome.imageUrl;
+                        resultText = outcome.text;
+                    } else {
+                        // Procedural simulation loop sequence steps (Sandbox Flow)
+                        await this.simulateProcessingSteps();
+                        resultImage = await ProceduralArtGenerator.generate(promptText, this.state.aspectRatio, this.state.baseImageBase64);
+                        
+                        // Simulate text return in sandbox if multimodal is selected
+                        if (this.state.modalities === 'image-text') {
+                            resultText = `[Sandbox Simulation Metadata] Scene: "${promptText.slice(0, 30)}...". Visual structure evolved successfully in ${this.state.aspectRatio} dimension space.`;
+                        }
+                    }
+
+                    // Save output parameters inside DB records storage with lineage matching parentId
+                    const parentId = this.state.baseImageId;
+                    const id = await this.db.saveGeneration(
+                        promptText, 
+                        activeModel, 
+                        resultImage, 
+                        resultText, 
+                        parentId,
+                        this.state.aspectRatio,
+                        this.state.reasoningEffort,
+                        this.state.modalities
+                    );
+                    const record = { 
+                        id, 
+                        prompt: promptText, 
+                        model: activeModel, 
+                        imageUrl: resultImage, 
+                        text: resultText, 
+                        parentId, 
+                        aspectRatio: this.state.aspectRatio,
+                        reasoningEffort: this.state.reasoningEffort,
+                        modalities: this.state.modalities,
+                        timestamp: Date.now() 
+                    };
+                    
+                    // Reset editing anchor to prevent hijacking subsequent text-to-image generations.
+                    // The user can explicitly chain versions by clicking the "Set as Edit Base" control button.
+                    this.state.baseImageBase64 = null;
+                    this.state.baseImageId = null;
+                    this.updateBaseImageUI();
+
+                    await this.loadHistoryItemToViewport(record);
+                    await this.refreshHistoryShelf();
+                    
+                    if (resultText) {
+                        ToastNotificationHUD.show(`Output generation finalized. Message: ${resultText.slice(0, 40)}...`, "success");
+                    } else {
+                        ToastNotificationHUD.show("Structural asset diffused successfully.", "success");
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    ToastNotificationHUD.show(err.message || "An unresolved error blocked image synthesis.", "error");
+                } finally {
+                    this.state.isGenerating = false;
+                    this.setGeneratingUIState(false);
+                }
+            }
+
+            async simulateProcessingSteps() {
+                const isRiverflow = this.state.selectedModel.includes('riverflow');
+                const phases = isRiverflow ? [
+                    { status: "Allocating sandbox virtualization node context", sub: "Spinning up high-reasoning Riverflow thread", prog: 10 },
+                    { status: "Sourceful Integrated Reasoning Plan", sub: `Executing multi-step editing layout planning (Effort: ${this.state.reasoningEffort.toUpperCase()})`, prog: 30 },
+                    { status: "Latent Denoising Pass 1", sub: "Developing draft geometry and typography vectors", prog: 55 },
+                    { status: "Integrated Quality Judge Evaluation", sub: "Scoring rendering candidates against prompt alignment constraints", prog: 80 },
+                    { status: "Final Polishing Pass", sub: "Finalizing atmospheric shaders and dynamic details", prog: 95 }
+                ] : [
+                    { status: "Allocating sandbox virtualization node context", sub: "Spinning up generative procedural raster thread", prog: 12 },
+                    { status: "Calculating matrix layout spatial bounds", sub: "Formulating hue structures from mathematical seed key values", prog: 38 },
+                    { status: "Diffusing seed patterns in 2D space", sub: "Iterating parametric equation passes inside viewport frame", prog: 68 },
+                    { status: "Applying dynamic atmospheric shading vectors", sub: "Injecting custom visual layout matrices to base pipeline", prog: 90 }
+                ];
+
+                for (const phase of phases) {
+                    this.updatePipelineStatus(phase.status, phase.sub, phase.prog);
+                    await new Promise(resolve => setTimeout(resolve, isRiverflow ? 1000 : 850));
+                }
+            }
+
+            updatePipelineStatus(primary, secondary, percent) {
+                this.dom.pipelinePrimaryStatus.textContent = primary;
+                this.dom.pipelineSecondaryStatus.textContent = secondary;
+                this.dom.pipelineProgressBar.style.width = `${percent}%`;
+            }
+
+            setGeneratingUIState(active) {
+                if (active) {
+                    this.dom.pipelineProgressBar.style.width = '0%';
+                    this.dom.pipelinePrimaryStatus.textContent = "Pipeline initial connection...";
+                    this.dom.pipelineSecondaryStatus.textContent = "Negotiating handshake credentials path...";
+                    this.dom.pipelineOverlay.classList.add('active');
+                    this.dom.submitPromptBtn.disabled = true;
+                    this.dom.submitPromptBtn.style.opacity = '0.5';
+                } else {
+                    this.dom.pipelineOverlay.classList.remove('active');
+                    this.dom.submitPromptBtn.disabled = false;
+                    this.dom.submitPromptBtn.style.opacity = '1';
+                }
+            }
+
+            downloadActiveAsset() {
+                if (!this.state.activeImage) return;
+                
+                const element = document.createElement('a');
+                element.href = this.state.activeImage.imageUrl;
+                element.download = `UNIRATE-${Date.now()}.png`;
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+                ToastNotificationHUD.show("Asset downloaded to local filesystem directory.", "success");
+            }
+
+            copyActiveBase64ToClipboard() {
+                if (!this.state.activeImage) return;
+
+                const base64Str = this.state.activeImage.imageUrl;
+                navigator.clipboard.writeText(base64Str).then(() => {
+                    ToastNotificationHUD.show("Data URL base64 schema address copied to clipboard.", "success");
+                }).catch(() => {
+                    ToastNotificationHUD.show("Could not execute clipboard operations copy pipeline.", "error");
+                });
+            }
+
+            openLightbox() {
+                if (!this.state.activeImage) return;
+                this.dom.lightboxImage.src = this.state.activeImage.imageUrl;
+                
+                let metaText = this.state.activeImage.prompt.slice(0, 60) + (this.state.activeImage.prompt.length > 60 ? '...' : '');
+                if (this.state.activeImage.text) {
+                    metaText += ` | Msg: ${this.state.activeImage.text.slice(0, 50)}...`;
+                }
+                
+                this.dom.lightboxMetaPrompt.textContent = metaText;
+                this.dom.lightboxMetaModel.textContent = `Model Target: ${this.state.activeImage.model}`;
+                this.dom.lightboxPortal.classList.add('active');
+            }
+
+            closeLightbox() {
+                this.dom.lightboxPortal.classList.remove('active');
+            }
+        }
+
+        // Initialize App once document is fully loaded
+        window.addEventListener('DOMContentLoaded', () => {
+            window.App = new AppController();
+        });
+    </script>
+</body>
+</html>

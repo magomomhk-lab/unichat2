@@ -1,0 +1,5 @@
+*.log
+parity_report.txt
+FINAL_AUDIT*.txt
+__pycache__/
+.DS_Store

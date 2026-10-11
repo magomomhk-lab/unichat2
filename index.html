@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a1a1a">
+<title>Главный экран</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:hsla(0,0%,9%,1); --bg1:hsla(0,0%,13%,1);
+  --ink:hsla(0,0%,93%,1); --ink-dim:hsla(0,0%,64%,1); --ink-faint:hsla(0,0%,46%,1);
+  --glass:hsla(0,0%,13%,.55); --glass-strong:hsla(0,0%,11%,.78);
+  --stroke:hsla(0,0%,100%,.08); --stroke-hi:hsla(0,0%,100%,.17);
+  --hover:hsla(0,0%,100%,.06); --active:hsla(0,0%,100%,.11);
+  --ease:cubic-bezier(.16,1,.3,1);
+  --tb:clamp(56px,8vh,68px);
+  --r-md:12px; --r-lg:16px;
+}
+html{color-scheme:dark}
+html,body{height:100%}
+body{
+  font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(120% 90% at 72% 8%, hsla(0,0%,21%,.55), hsla(0,0%,21%,0) 60%),
+    radial-gradient(95% 95% at 12% 92%, hsla(0,0%,16%,.7), hsla(0,0%,16%,0) 55%),
+    linear-gradient(160deg, var(--bg1), var(--bg0) 70%);
+  height:100vh;height:100dvh;overflow:hidden;
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;user-select:none;
+}
+::selection{background:hsla(0,0%,100%,.18)}
+:focus{outline:none}
+:focus-visible{outline:2px solid hsla(0,0%,100%,.72);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- ФОН: треугольники + зерно ---------- */
+#bg{position:fixed;inset:0;z-index:0;width:100%;height:100%;filter:blur(5px);opacity:.9}
+.grain{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.07;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size:180px 180px}
+
+/* ---------- ОБОЛОЧКА ---------- */
+.shell{position:relative;z-index:2;height:100vh;height:100dvh;display:flex;flex-direction:column;
+  padding:clamp(18px,3.4vh,36px) clamp(16px,4vw,48px) calc(var(--tb) + env(safe-area-inset-bottom,0px) + clamp(12px,2vh,20px))}
+.hero{display:flex;flex-direction:column;gap:14px;margin-bottom:clamp(16px,3vh,30px)}
+.clock-time{font-size:clamp(46px,8vw,96px);font-weight:200;line-height:.95;letter-spacing:-.02em;
+  text-shadow:0 2px 24px hsla(0,0%,0%,.45)}
+.colon{animation:colon 2.2s ease-in-out infinite}
+@keyframes colon{0%,100%{opacity:1}50%{opacity:.3}}
+.clock-date{margin-top:6px;font-size:clamp(13px,1.4vw,16px);color:var(--ink-dim);letter-spacing:.01em}
+.greet{display:flex;align-items:center;gap:13px;margin-top:clamp(6px,1.4vh,14px)}
+.greet-logo{width:clamp(36px,4.4vw,46px);aspect-ratio:1;object-fit:contain;border-radius:12px;
+  padding:6px;background:linear-gradient(150deg,hsla(0,0%,100%,.09),hsla(0,0%,100%,.02));
+  border:1px solid var(--stroke);box-shadow:0 8px 22px hsla(0,0%,0%,.4)}
+.greet-logo.pulse{animation:logoPulse .8s var(--ease)}
+@keyframes logoPulse{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+.greet-text{font-size:clamp(19px,2.5vw,29px);font-weight:600;letter-spacing:.005em;position:relative}
+
+/* Глитч */
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;inset:0;opacity:0;pointer-events:none}
+.glitch.glitch-run::before{animation:glA .72s steps(1,end) both}
+.glitch.glitch-run::after{animation:glB .72s steps(1,end) both}
+@keyframes glA{0%{opacity:0}7%{opacity:.5;transform:translate(-3px,1px);clip-path:inset(8% 0 58% 0)}
+ 13%{clip-path:inset(64% 0 6% 0);transform:translate(2px,-1px)}20%{opacity:0;transform:none}100%{opacity:0}}
+@keyframes glB{0%{opacity:0}9%{opacity:.35;transform:translate(3px,-1px);clip-path:inset(46% 0 32% 0)}
+ 16%{clip-path:inset(12% 0 74% 0);transform:translate(-2px,1px)}23%{opacity:0;transform:none}100%{opacity:0}}
+
+/* ---------- СЕТКА ПРИЛОЖЕНИЙ ---------- */
+.apps{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth;
+  margin-inline:-10px;padding:4px 10px 10px}
+.apps::-webkit-scrollbar,.search-results::-webkit-scrollbar{width:8px}
+.apps::-webkit-scrollbar-thumb,.search-results::-webkit-scrollbar-thumb{background:hsla(0,0%,100%,.12);border-radius:8px}
+.apps::-webkit-scrollbar-thumb:hover,.search-results::-webkit-scrollbar-thumb:hover{background:hsla(0,0%,100%,.22)}
+.apps-grid{list-style:none;display:grid;max-width:1180px;margin-inline:auto;width:100%;
+  grid-template-columns:repeat(auto-fill,minmax(clamp(78px,9vw,104px),1fr));gap:clamp(6px,1.2vw,14px)}
+.apps-grid li{animation:rise .7s var(--ease) both;animation-delay:calc(var(--i)*28ms)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+.app-tile{display:flex;flex-direction:column;align-items:center;gap:9px;width:100%;
+  padding:13px 6px 11px;border-radius:var(--r-md);border:1px solid transparent;text-decoration:none;color:var(--ink);
+  transition:background .35s var(--ease),border-color .35s var(--ease),transform .35s var(--ease)}
+.app-tile:hover{background:var(--hover);border-color:var(--stroke)}
+.app-tile:active{transform:scale(.955);transition-duration:.1s}
+.app-icon{width:clamp(48px,6vw,60px);aspect-ratio:1;display:grid;place-items:center;border-radius:var(--r-md);
+  color:hsla(0,0%,86%,1);
+  background:linear-gradient(150deg,hsla(0,0%,100%,.09),hsla(0,0%,100%,.03));
+  border:1px solid var(--stroke);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  box-shadow:0 8px 20px hsla(0,0%,0%,.35),inset 0 1px 0 hsla(0,0%,100%,.08);
+  transition:transform .4s var(--ease),box-shadow .4s var(--ease),color .3s}
+.app-tile:hover .app-icon{transform:translateY(-3px) scale(1.045);color:hsla(0,0%,97%,1);
+  box-shadow:0 14px 30px hsla(0,0%,0%,.45),inset 0 1px 0 hsla(0,0%,100%,.12)}
+.app-icon svg{width:56%;height:56%}
+.app-icon img{width:66%;height:66%;aspect-ratio:1;object-fit:cover;border-radius:clamp(8px,1.2vw,11px);
+  filter:drop-shadow(0 4px 10px hsla(0,0%,0%,.45))}
+.app-label{max-width:100%;font-size:clamp(11px,1.1vw,12.5px);color:var(--ink-dim);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color .3s}
+.app-tile:hover .app-label{color:var(--ink)}
+
+/* ---------- ПАНЕЛЬ ЗАДАЧ ---------- */
+.taskbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;justify-content:center;
+  height:calc(var(--tb) + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);
+  background:hsla(0,0%,10%,.55);backdrop-filter:blur(22px) saturate(130%);-webkit-backdrop-filter:blur(22px) saturate(130%);
+  border-top:1px solid var(--stroke)}
+.taskbar::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,hsla(0,0%,100%,.14),transparent)}
+.tb-inner{display:flex;align-items:center;gap:6px;max-width:100%;padding:0 12px;overflow-x:auto;scrollbar-width:none}
+.tb-inner::-webkit-scrollbar{display:none}
+.tb-btn,.tb-app{flex:none;width:44px;height:44px;border-radius:10px;border:1px solid transparent;background:transparent;
+  display:grid;place-items:center;position:relative;color:var(--ink-dim);
+  transition:background .3s var(--ease),color .3s,transform .25s var(--ease),border-color .3s}
+.tb-btn:hover,.tb-app:hover{background:var(--hover);color:var(--ink)}
+.tb-btn:active,.tb-app:active{transform:scale(.9)}
+.tb-btn svg,.tb-app svg{width:21px;height:21px}
+.tb-btn img{width:26px;height:26px;aspect-ratio:1;object-fit:cover;border-radius:7px}
+.tb-app img{width:24px;height:24px;aspect-ratio:1;object-fit:cover;border-radius:6px}
+.tb-btn.open{background:var(--active);border-color:var(--stroke);color:var(--ink)}
+.tb-app::after{content:"";position:absolute;bottom:2px;left:50%;transform:translateX(-50%);
+  width:14px;height:2.5px;border-radius:2px;background:hsla(0,0%,100%,.35)}
+.tb-divider{flex:none;width:1px;height:24px;background:var(--stroke-hi);margin:0 6px}
+.tb-recents{display:flex;align-items:center;gap:6px}
+
+/* ---------- ФЛАЙАУТЫ ---------- */
+.flyout{position:fixed;z-index:50;left:50%;bottom:calc(var(--tb) + env(safe-area-inset-bottom,0px) + 12px);
+  transform:translateX(-50%) translateY(16px) scale(.98);opacity:0;visibility:hidden;
+  transition:transform .45s var(--ease),opacity .3s var(--ease),visibility 0s .45s;
+  background:var(--glass-strong);backdrop-filter:blur(28px) saturate(140%);-webkit-backdrop-filter:blur(28px) saturate(140%);
+  border:1px solid var(--stroke-hi);border-radius:var(--r-lg);box-shadow:0 24px 60px hsla(0,0%,0%,.55);
+  padding:14px}
+.flyout.open{opacity:1;visibility:visible;transform:translateX(-50%);
+  transition:transform .45s var(--ease),opacity .28s var(--ease)}
+.flyout-search{width:min(560px,calc(100vw - 24px))}
+.search-box{position:relative}
+.search-box svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;
+  stroke:var(--ink-faint);pointer-events:none}
+.search-input{width:100%;font:inherit;font-size:16px;color:var(--ink);border-radius:10px;
+  padding:11px 12px 11px 40px;background:hsla(0,0%,100%,.05);border:1px solid var(--stroke);
+  transition:border-color .3s,box-shadow .3s}
+.search-input::placeholder{color:var(--ink-faint)}
+.search-input:focus{border-color:hsla(0,0%,100%,.3);box-shadow:0 0 0 3px hsla(0,0%,100%,.06)}
+.search-results{list-style:none;margin-top:10px;max-height:min(40vh,340px);overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.res-row{display:flex;align-items:center;gap:11px;width:100%;padding:8px 10px;border-radius:10px;text-align:left;
+  background:transparent;border:1px solid transparent;color:var(--ink);font:inherit;cursor:pointer;
+  transition:background .25s var(--ease)}
+.res-row:hover,.res-row.active{background:var(--hover)}
+.res-icon{flex:none;width:34px;height:34px;display:grid;place-items:center;border-radius:9px;color:hsla(0,0%,86%,1);
+  background:linear-gradient(150deg,hsla(0,0%,100%,.09),hsla(0,0%,100%,.03));border:1px solid var(--stroke)}
+.res-icon svg{width:58%;height:58%}
+.res-icon img{width:64%;height:64%;aspect-ratio:1;object-fit:cover;border-radius:6px}
+.res-name{flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res-url{flex:none;font-size:11px;color:var(--ink-faint);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.search-empty{padding:18px 6px 8px;text-align:center;color:var(--ink-faint);font-size:13px}
+
+.flyout-note{width:min(430px,calc(100vw - 24px))}
+.note-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.note-head h2{font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-dim)}
+.note-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-faint);transition:color .3s}
+.note-status svg{width:13px;height:13px;opacity:.4;transition:opacity .3s}
+.note-status.ok{color:var(--ink)}
+.note-status.ok svg{opacity:1}
+.note-area{width:100%;min-height:190px;resize:vertical;font:inherit;font-size:16px;line-height:1.55;color:var(--ink);
+  background:hsla(0,0%,100%,.04);border:1px solid var(--stroke);border-radius:10px;padding:12px;user-select:text;
+  transition:border-color .3s,box-shadow .3s}
+.note-area:focus{border-color:hsla(0,0%,100%,.3);box-shadow:0 0 0 3px hsla(0,0%,100%,.06)}
+
+/* ---------- ТОСТ ---------- */
+.toast{position:fixed;z-index:60;left:50%;bottom:calc(var(--tb) + env(safe-area-inset-bottom,0px) + 14px);
+  transform:translate(-50%,10px);opacity:0;pointer-events:none;
+  background:var(--glass-strong);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--stroke-hi);border-radius:12px;padding:10px 16px;font-size:13px;color:var(--ink);
+  box-shadow:0 16px 40px hsla(0,0%,0%,.5);transition:transform .45s var(--ease),opacity .35s var(--ease)}
+.toast.show{transform:translate(-50%,0);opacity:1}
+
+/* ---------- КАСТОМНЫЙ КУРСОР ---------- */
+.cursor-dot,.cursor-ring{position:fixed;left:0;top:0;z-index:200;pointer-events:none;border-radius:50%;display:none;opacity:0;
+  transition:opacity .3s}
+.cursor-dot{width:6px;height:6px;background:hsla(0,0%,100%,.95);box-shadow:0 0 8px hsla(0,0%,0%,.6)}
+.cursor-ring{width:34px;height:34px;border:1.5px solid hsla(0,0%,100%,.35);transition:opacity .3s,border-color .25s}
+.cursor-ring.is-link{border-color:hsla(0,0%,100%,.85)}
+body.custom-cursor,body.custom-cursor *{cursor:none!important}
+body.custom-cursor .cursor-dot,body.custom-cursor .cursor-ring{display:block}
+
+/* ---------- АДАПТИВ ---------- */
+@media (min-width:721px){
+  .hero{flex-direction:row;align-items:flex-end;justify-content:space-between}
+  .greet{margin-top:0;padding-bottom:8px}
+}
+@media (max-width:720px){
+  :root{--tb:56px}
+  .tb-recents .tb-app:nth-child(n+6){display:none}
+}
+@media (max-width:400px){
+  .tb-recents .tb-app:nth-child(n+5){display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .apps{scroll-behavior:auto}
+  .glitch::before,.glitch::after{display:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="shell" id="shell">
+  <header class="hero">
+    <div class="clock">
+      <p class="clock-time" id="clockTime">00<span class="colon">:</span>00</p>
+      <p class="clock-date" id="clockDate"></p>
+    </div>
+    <div class="greet">
+      <img class="greet-logo" id="greetLogo" src="favicon.ico" alt="Логотип приложения">
+      <h1 class="greet-text glitch" id="greetText" data-text="Привет">Привет</h1>
+    </div>
+  </header>
+
+  <section class="apps" id="appsScroll" aria-label="Приложения">
+    <ul class="apps-grid" id="appsGrid"></ul>
+  </section>
+</main>
+
+<!-- Поиск -->
+<div class="flyout flyout-search" id="flyoutSearch" role="dialog" aria-label="Поиск приложений">
+  <div class="search-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 0 0 0-14"/><path d="M16 16l4.5 4.5"/></svg>
+    <input class="search-input" id="searchInput" type="text" placeholder="Поиск приложений" autocomplete="off" aria-label="Поиск приложений">
+  </div>
+  <ul class="search-results" id="searchResults"></ul>
+  <p class="search-empty" id="searchEmpty" hidden>Ничего не найдено</p>
+</div>
+
+<!-- Быстрая заметка -->
+<div class="flyout flyout-note" id="flyoutNote" role="dialog" aria-label="Быстрая заметка">
+  <div class="note-head">
+    <h2>Быстрая заметка</h2>
+    <span class="note-status" id="noteStatus">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5l10-11"/></svg>
+      <span id="noteStatusText">Автосохранение</span>
+    </span>
+  </div>
+  <label class="sr-only" for="noteArea">Текст заметки</label>
+  <textarea class="note-area" id="noteArea" placeholder="Запишите мысль…"></textarea>
+</div>
+
+<!-- Панель задач -->
+<nav class="taskbar" aria-label="Панель задач">
+  <div class="tb-inner">
+    <button class="tb-btn" id="startBtn" aria-label="Домой">
+      <img id="startImg" src="favicon.ico" alt="">
+    </button>
+    <button class="tb-btn" id="searchBtn" aria-label="Поиск">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 0 0 0-14"/><path d="M16 16l4.5 4.5"/></svg>
+    </button>
+    <button class="tb-btn" id="noteBtn" aria-label="Быстрая заметка">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19l-4 1z"/><path d="M14.5 6.5l3 3"/></svg>
+    </button>
+    <span class="tb-divider" id="tbDivider" hidden></span>
+    <div class="tb-recents" id="tbRecents" aria-label="Недавние приложения"></div>
+  </div>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+<div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+
+<script>
+'use strict';
+
+/* =========================================================
+   НАСТРОЙКА: замените названия, ссылки и иконки.
+   icon: '' — встроенная SVG-заглушка, либо путь к файлу: 'apps/site.png'
+   target: '_self' (в этой вкладке) или '_blank' (в новой)
+========================================================= */
+const CONFIG = {
+  logo: 'favicon.ico',
+  recentsMax: 7,
+  noteAutosave: 600,
+  apps: [
+    { name:'AI Chat | MoonSSS', url:'ai.html', icon:'claude-color.svg', target:'_self' },
+    { name:'IDE/Note', url:'note.html', icon:'favicon.ico', target:'_self' },
+    { name:'Music Player', url:'music.html', icon:'music.png', target:'_self' },
+    { name:'RP AI', url:'roleplay.html', icon:'uni.png', target:'_self' },
+    { name:'Video Player', url:'video.html', icon:'', target:'_self' },
+    { name:'Генерация IMG', url:'imgenerate.html', icon:'', target:'_self' },
+    { name:'IMG test', url:'imgenerate2.html', icon:'FLUX.png', target:'_self' },
+    { name:'ai', url:'#', icon:'', target:'_self' },
+    { name:'CallPhone', url:'aiphone.html', icon:'', target:'_self' },
+    { name:'TEST', url:'termai/termai.html', icon:'', target:'_self' },
+    { name:'Browser', url:'browser.html', icon:'', target:'_self' },
+    { name:'test_browser', url:'D:/my-desktop-app/src_dev/www/borw.html', icon:'', target:'_self' },
+    { name:'Q&A', url:'Q&A.html', icon:'', target:'_self' },
+    { name:'youtube', url:'youtube.html', icon:'', target:'_self' },
+    { name:'Music', url:'music.html', icon:'', target:'_self' },
+    { name:'IDE TEST', url:'ide.html', icon:'', target:'_self' },
+    { name:'Для анализа разработок', url:'ForFixed.html', icon:'MoonshotAI.png', target:'_self' },
+    { name:'Приложение 18', url:'#', icon:'', target:'_self' },
+    { name:'Приложение 19', url:'#', icon:'', target:'_self' }
+  ]
+};
+
+const GREETINGS = {
+  morning:['Доброе утро','Утро. Время созидать','С новым утром','Доброе утро, вперёд'],
+  day:['Добрый день','День в самом разгаре','Добрый день, за дело','Время действовать'],
+  evening:['Добрый вечер','Вечер. Но утром лучше','Хорошего вечера','Добрый вечер', 'Вечер. Время отдыхать', 'Может поспишь?', 'Вечер – Это хорошо, но утром думается лучше', 'Утро вечера мудреннее'],
+  night:['Доброй ночи','Тихий ночной режим','Ночь. Что ты здесь забыл, а?','Поздний час']
+};
+
+/* 19 нейтральных SVG-глифов (заглушки, пока не подставите свои иконки) */
+const GLYPHS = [
+ ['M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0-18','M3 12h18','M12 3c2.7 3.2 2.7 14.8 0 18M12 3c-2.7 3.2-2.7 14.8 0 18'],
+ ['M3 6.5h6l2 2.5h10v9.5H3z'],
+ ['M8.5 7L4 12l4.5 5','M15.5 7L20 12l-4.5 5'],
+ ['M7 18a4.2 4.2 0 0 1 .5-8.4A5.5 5.5 0 0 1 18 10.6A3.7 3.7 0 0 1 17.3 18Z'],
+ ['M5 20v-7','M11 20V5','M17 20v-10','M3 20h18'],
+ ['M3 6.5h18v11H3z','M3.5 7.5l8.5 6l8.5-6'],
+ ['M3 8h4.2l1.9-2.8h5.8L16.8 8H21v10.5H3z','M12 16a3.1 3.1 0 1 0 0-6.2A3.1 3.1 0 0 0 12 16'],
+ ['M8 5.5l11 6.5l-11 6.5z'],
+ ['M4 6.5h16V20H4z','M4 10.5h16','M8.5 3.5v4','M15.5 3.5v4'],
+ ['M4 6h16v10.5H9.5L4 20.5z'],
+ ['M4 5.5h16v13H4z','M7.5 9.5l3 2.7l-3 2.7','M12.5 15h4'],
+ ['M12 3.5l8.5 4.8L12 13.1L3.5 8.3z','M3.5 13l8.5 4.8L20.5 13'],
+ ['M12 3l7 2.8v5.7c0 4.2-2.9 7.2-7 9.5c-4.1-2.3-7-5.3-7-9.5V5.8z'],
+ ['M6.5 3.5h11V21L12 16.8L6.5 21z'],
+ ['M3.5 4.5H6l2 11h10.5l2-8H7','M9.3 19.8a1.4 1.4 0 1 0 0-2.8a1.4 1.4 0 0 0 0 2.8','M16.8 19.8a1.4 1.4 0 1 0 0-2.8a1.4 1.4 0 0 0 0 2.8'],
+ ['M4 7.5h8.5','M17.5 7.5H20','M14.5 4.8v5.4','M4 16.5h2.5','M11 16.5h9','M8 13.8v5.4'],
+ ['M12 21c4.2-4.6 7-8 7-11a7 7 0 1 0-14 0c0 3 2.8 6.4 7 11z','M12 12.6a2.6 2.6 0 1 0 0-5.2a2.6 2.6 0 0 0 0 5.2'],
+ ['M13 2.5L5.5 13H11l-1 8.5L18 10.5h-5.5z'],
+ ['M4 5.5h16v13H4z','M4 15.5l4.5-4.5l4 4l3-3l4.5 4.5','M9.2 9.7a1.1 1.1 0 1 0 0-2.2a1.1 1.1 0 0 0 0 2.2']
+];
+window.__glyph = (i) => {
+  const g = GLYPHS[((i % GLYPHS.length) + GLYPHS.length) % GLYPHS.length];
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${g.map(d=>`<path d="${d}"/>`).join('')}</svg>`;
+};
+
+const $ = (s) => document.querySelector(s);
+
+/* ============ IndexedDB (Web / Electron / Capacitor) ============ */
+class DatabaseController {
+  constructor(name){ this.name = name; this.db = null; this.failed = false; this.mem = {}; }
+  init(){
+    return new Promise(resolve => {
+      if (typeof indexedDB === 'undefined'){ this.failed = true; return resolve(); }
+      let req;
+      try { req = indexedDB.open(this.name, 1); }
+      catch(err){ this.failed = true; return resolve(); }
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        try {
+          if (!db.objectStoreNames.contains('kv'))      db.createObjectStore('kv',      { keyPath:'key' });
+          if (!db.objectStoreNames.contains('recents')) db.createObjectStore('recents', { keyPath:'id'  });
+        } catch(err){}
+      };
+      req.onsuccess = () => { this.db = req.result; this.db.onversionchange = () => { try{ this.db.close(); }catch(e){} }; resolve(); };
+      req.onerror   = () => { this.failed = true; resolve(); };
+      req.onblocked = () => { this.failed = true; resolve(); };
+    });
+  }
+  _memStore(store){ return this.mem[store] || (this.mem[store] = new Map()); }
+  _req(store, mode, fn){
+    return new Promise(resolve => {
+      if (this.failed || !this.db){ resolve(fn(null, this._memStore(store), true)); return; }
+      let tx;
+      try { tx = this.db.transaction(store, mode); }
+      catch(err){ this.failed = true; resolve(fn(null, this._memStore(store), true)); return; }
+      const r = fn(tx.objectStore(store), null, false);
+      if (r && 'onsuccess' in r){ r.onsuccess = () => resolve(r.result); r.onerror = () => resolve(undefined); }
+      else { tx.oncomplete = () => resolve(true); tx.onerror = () => resolve(undefined); tx.onabort = () => resolve(undefined); }
+    });
+  }
+  get(store, key){ return this._req(store, 'readonly', (st, mem, isMem) => isMem ? mem.get(key) : st.get(key)); }
+  put(store, value){
+    const k = store === 'kv' ? value.key : value.id;
+    return this._req(store, 'readwrite', (st, mem, isMem) => isMem ? (mem.set(k, value), true) : st.put(value));
+  }
+  async getAll(store){
+    if (this.failed || !this.db) return [...this._memStore(store).values()];
+    try {
+      const tx = this.db.transaction(store, 'readonly');
+      const st = tx.objectStore(store);
+      if (st.getAll) return await new Promise(res => {
+        const r = st.getAll(); r.onsuccess = () => res(r.result || []); r.onerror = () => res([]);
+      });
+      return await new Promise(res => {
+        const out = []; const r = st.openCursor();
+        r.onsuccess = () => { const c = r.result; if (c){ out.push(c.value); c.continue(); } else res(out); };
+        r.onerror = () => res([]);
+      });
+    } catch(err){ this.failed = true; return [...this._memStore(store).values()]; }
+  }
+}
+
+/* ============ Состояние UI ============ */
+class UIState {
+  constructor(){ this.open = null; }
+  toggle(name){ this.open = (this.open === name) ? null : name; return this.open; }
+  close(){ this.open = null; }
+}
+
+/* ============ Фон: плывущие треугольники ============ */
+class TriangleField {
+  constructor(canvas){
+    this.cv = canvas; this.cx = canvas.getContext('2d');
+    this.items = []; this.raf = null; this.last = 0;
+    this.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this._frame = this._frame.bind(this);
+    let rt;
+    addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => this.setup(), 160); });
+    document.addEventListener('visibilitychange', () => document.hidden ? this.stop() : this.start());
+    this.setup();
+  }
+  setup(){
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.w = innerWidth; this.h = innerHeight;
+    this.cv.width = Math.round(this.w * dpr); this.cv.height = Math.round(this.h * dpr);
+    this.cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.base = Math.min(this.w, this.h); // единая пропорция размеров на любом экране
+    const count = Math.max(9, Math.min(22, Math.round((this.w * this.h) / 75000)));
+    this.items = Array.from({ length: count }, () => this.spawn());
+    this.reduced ? this.paint(0, 0) : this.start();
+  }
+  spawn(){
+    const b = this.base, s = b * (0.045 + Math.random() * 0.15);
+    return { x: Math.random()*this.w, y: Math.random()*this.h, s,
+      vx:(Math.random()-.5)*b*0.02, vy:(Math.random()-.5)*b*0.02,
+      r: Math.random()*Math.PI*2, vr:(Math.random()-.5)*0.2,
+      a: 0.05 + Math.random()*0.16, ph: Math.random()*6.28, sp: 0.25 + Math.random()*0.55,
+      hollow: Math.random() < 0.35 };
+  }
+  start(){ if (this.reduced || this.raf) return; this.last = performance.now(); this.raf = requestAnimationFrame(this._frame); }
+  stop(){ if (this.raf){ cancelAnimationFrame(this.raf); this.raf = null; } }
+  _frame(now){ this.paint(now/1000, (now-this.last)/1000); this.last = now; this.raf = requestAnimationFrame(this._frame); }
+  paint(t, dt){
+    const c = this.cx;
+    c.clearRect(0, 0, this.w, this.h);
+    for (const p of this.items){
+      if (dt > 0){
+        p.x += p.vx*dt; p.y += p.vy*dt; p.r += p.vr*dt;
+        const m = p.s;
+        if (p.x < -m) p.x = this.w + m; if (p.x > this.w + m) p.x = -m;
+        if (p.y < -m) p.y = this.h + m; if (p.y > this.h + m) p.y = -m;
+      }
+      const pulse = this.reduced ? 0.8 : (0.3 + 0.7 * (0.5 + 0.5*Math.sin(t*p.sp + p.ph)));
+      const a = p.a * pulse;
+      c.save(); c.translate(p.x, p.y); c.rotate(p.r);
+      c.beginPath(); c.moveTo(0, -p.s*0.62); c.lineTo(p.s*0.56, p.s*0.42); c.lineTo(-p.s*0.56, p.s*0.42); c.closePath();
+      if (p.hollow){ c.strokeStyle = `hsla(0,0%,100%,${a})`; c.lineWidth = 1.25; c.stroke(); }
+      else         { c.fillStyle   = `hsla(0,0%,100%,${a})`; c.fill(); }
+      c.restore();
+    }
+  }
+}
+
+/* ============ Кастомный курсор (только pointer:fine) ============ */
+class CursorController {
+  constructor(){
+    if (!matchMedia('(pointer: fine)').matches) return;
+    this.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.dot = $('#cursorDot'); this.ring = $('#cursorRing');
+    this.x = innerWidth/2; this.y = innerHeight/2; this.tx = this.x; this.ty = this.y;
+    this.scale = 1; this.ts = 1; this.on = false; this.hidden = false;
+    addEventListener('pointermove', e => {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+      this.tx = e.clientX; this.ty = e.clientY;
+      if (this.hidden){ this.hidden = false; this.dot.style.opacity = 1; this.ring.style.opacity = 1; }
+      if (!this.on){ this.on = true; document.body.classList.add('custom-cursor'); this.dot.style.opacity = 1; this.ring.style.opacity = 1; this.loop(); }
+    }, { passive:true });
+    document.addEventListener('pointerover', e => {
+      const hit = e.target.closest && e.target.closest('a,button,input,textarea,[role="button"],label');
+      this.ts = hit ? 1.55 : 1;
+      this.ring.classList.toggle('is-link', !!hit);
+    }, true);
+    document.addEventListener('mouseout', e => {
+      if (!e.relatedTarget){ this.hidden = true; this.dot.style.opacity = 0; this.ring.style.opacity = 0; }
+    });
+  }
+  loop(){
+    const step = () => {
+      requestAnimationFrame(step);
+      const k = this.reduced ? 1 : 0.2;
+      this.x += (this.tx - this.x) * k; this.y += (this.ty - this.y) * k;
+      this.scale += (this.ts - this.scale) * (this.reduced ? 1 : 0.18);
+      this.dot.style.transform  = `translate3d(${this.tx - 3}px,${this.ty - 3}px,0)`;
+      this.ring.style.transform = `translate3d(${this.x - 17}px,${this.y - 17}px,0) scale(${this.scale})`;
+    };
+    step();
+  }
+}
+
+/* ============ Главный контроллер ============ */
+class AppController {
+  constructor(){
+    this.db = new DatabaseController('orbit-launcher');
+    this.state = new UIState();
+    this.recents = [];
+    this.searchList = []; this.searchIdx = -1;
+    this.noteDirty = false; this.lastGreet = '';
+    this.el = {
+      time:$('#clockTime'), date:$('#clockDate'), greet:$('#greetText'), logo:$('#greetLogo'),
+      grid:$('#appsGrid'), scroll:$('#appsScroll'),
+      flySearch:$('#flyoutSearch'), input:$('#searchInput'), results:$('#searchResults'), empty:$('#searchEmpty'),
+      flyNote:$('#flyoutNote'), note:$('#noteArea'), noteStatus:$('#noteStatus'), noteText:$('#noteStatusText'),
+      start:$('#startBtn'), search:$('#searchBtn'), noteBtn:$('#noteBtn'),
+      recents:$('#tbRecents'), divider:$('#tbDivider'), toast:$('#toast'), startImg:$('#startImg')
+    };
+  }
+  async init(){
+    await this.db.init();
+    this.el.logo.src = CONFIG.logo; this.el.startImg.src = CONFIG.logo;
+    this.renderApps(); this.bind();
+    this.startClock(); this.setGreeting(); setInterval(() => this.setGreeting(), 24000);
+    new TriangleField($('#bg')); new CursorController();
+    await Promise.all([ this.loadRecents(), this.loadNote() ]);
+  }
+  esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+  iconHTML(app, i){
+    return app.icon
+      ? `<img src="${this.esc(app.icon)}" alt="" loading="lazy" onerror="this.outerHTML=window.__glyph(${i})">`
+      : window.__glyph(i);
+  }
+  hostOf(url){
+    if (!url || url === '#') return '';
+    try { return new URL(url, location.href).host; } catch(e){ return url; }
+  }
+
+  /* --- Сетка приложений --- */
+  renderApps(){
+    const frag = document.createDocumentFragment();
+    CONFIG.apps.forEach((app, i) => {
+      const li = document.createElement('li');
+      li.style.setProperty('--i', i);
+      li.innerHTML = `<a class="app-tile" href="${this.esc(app.url || '#')}" data-index="${i}">
+        <span class="app-icon">${this.iconHTML(app, i)}</span>
+        <span class="app-label">${this.esc(app.name)}</span></a>`;
+      frag.appendChild(li);
+    });
+    this.el.grid.appendChild(frag);
+  }
+
+  /* --- Запуск приложения + недавние --- */
+  launch(i){
+    const app = CONFIG.apps[i];
+    if (!app) return;
+    if (!app.url || app.url === '#'){ this.toast(`Укажите ссылку для «${app.name}» в CONFIG.apps`); return; }
+    this.addRecent(i);
+    if (app.target === '_blank'){ window.open(app.url, '_blank', 'noopener'); }
+    else { setTimeout(() => location.assign(app.url), 130); }
+  }
+  addRecent(i){
+    this.recents = [i, ...this.recents.filter(x => x !== i)].slice(0, CONFIG.recentsMax);
+    this.renderRecents();
+    this.db.put('recents', { id: i, ts: Date.now() });
+  }
+  async loadRecents(){
+    const all = await this.db.getAll('recents');
+    this.recents = (all || []).sort((a,b) => (b.ts||0) - (a.ts||0))
+      .map(r => r.id).filter(id => Number.isInteger(id) && id >= 0 && id < CONFIG.apps.length)
+      .slice(0, CONFIG.recentsMax);
+    this.renderRecents();
+  }
+  renderRecents(){
+    this.el.divider.hidden = this.recents.length === 0;
+    this.el.recents.innerHTML = this.recents.map(i => {
+      const app = CONFIG.apps[i];
+      return `<button class="tb-app" data-index="${i}" title="${this.esc(app.name)}" aria-label="${this.esc(app.name)}">${this.iconHTML(app, i)}</button>`;
+    }).join('');
+  }
+
+  /* --- Часы и приветствия --- */
+  startClock(){
+    const fmt = new Intl.DateTimeFormat('ru-RU', { weekday:'long', day:'numeric', month:'long' });
+    const upd = () => {
+      const n = new Date();
+      const hh = String(n.getHours()).padStart(2,'0'), mm = String(n.getMinutes()).padStart(2,'0');
+      const key = hh + mm;
+      if (this.el.time.dataset.h !== key){
+        this.el.time.innerHTML = `${hh}<span class="colon">:</span>${mm}`;
+        this.el.time.dataset.h = key;
+      }
+      const ds = fmt.format(n);
+      if (this.el.date.textContent !== ds) this.el.date.textContent = ds;
+    };
+    upd(); setInterval(upd, 1000);
+  }
+  setGreeting(){
+    const h = new Date().getHours();
+    const bucket = (h >= 5 && h < 12) ? 'morning' : (h >= 12 && h < 18) ? 'day' : (h >= 18 && h < 23) ? 'evening' : 'night';
+    const arr = GREETINGS[bucket];
+    let pick;
+    do { pick = arr[Math.floor(Math.random() * arr.length)]; } while (arr.length > 1 && pick === this.lastGreet);
+    this.lastGreet = pick;
+    const el = this.el.greet;
+    el.textContent = pick; el.dataset.text = pick;
+    el.classList.remove('glitch-run'); void el.offsetWidth; el.classList.add('glitch-run');
+  }
+
+  /* --- Флайауты --- */
+  openFlyout(name){
+    const open = this.state.toggle(name);
+    this.applyFlyouts();
+    if (open === 'search'){ this.renderResults(); this.el.input.focus(); this.el.input.select(); }
+    if (open === 'note'){ setTimeout(() => this.el.note.focus(), 120); }
+  }
+  closeFlyouts(){ this.state.close(); this.applyFlyouts(); }
+  applyFlyouts(){
+    const o = this.state.open;
+    this.el.flySearch.classList.toggle('open', o === 'search');
+    this.el.flyNote.classList.toggle('open', o === 'note');
+    this.el.search.classList.toggle('open', o === 'search');
+    this.el.noteBtn.classList.toggle('open', o === 'note');
+  }
+
+  /* --- Поиск --- */
+  renderResults(){
+    const q = this.el.input.value.trim().toLowerCase();
+    let list = CONFIG.apps.map((a, i) => ({ a, i }));
+    if (q) list = list.filter(o => o.a.name.toLowerCase().includes(q));
+    this.searchList = list; this.searchIdx = list.length ? 0 : -1;
+    this.el.results.innerHTML = list.map((o, idx) => `
+      <li><button class="res-row${idx === this.searchIdx ? ' active' : ''}" data-index="${o.i}" data-pos="${idx}">
+        <span class="res-icon">${this.iconHTML(o.a, o.i)}</span>
+        <span class="res-name">${this.esc(o.a.name)}</span>
+        <span class="res-url">${this.esc(this.hostOf(o.a.url))}</span>
+      </button></li>`).join('');
+    this.el.empty.hidden = list.length > 0;
+  }
+  setActive(pos){
+    if (!this.searchList.length) return;
+    this.searchIdx = (pos + this.searchList.length) % this.searchList.length;
+    [...this.el.results.querySelectorAll('.res-row')].forEach((b, k) => {
+      b.classList.toggle('active', k === this.searchIdx);
+      if (k === this.searchIdx) b.scrollIntoView({ block:'nearest' });
+    });
+  }
+
+  /* --- Заметка --- */
+  async loadNote(){
+    const v = await this.db.get('kv', 'quickNote');
+    if (v && typeof v.value === 'string') this.el.note.value = v.value;
+  }
+  setNoteStatus(mode){
+    this.el.noteStatus.classList.toggle('ok', mode === 'saved');
+    this.el.noteText.textContent = mode === 'typing' ? 'Ввод…' : mode === 'saved' ? 'Сохранено' : 'Автосохранение';
+  }
+  async saveNote(){
+    this.noteDirty = false;
+    await this.db.put('kv', { key:'quickNote', value:this.el.note.value });
+    this.setNoteStatus('saved');
+    clearTimeout(this._ns); this._ns = setTimeout(() => this.setNoteStatus('auto'), 1800);
+  }
+
+  /* --- Тост --- */
+  toast(msg){
+    this.el.toast.textContent = msg;
+    this.el.toast.classList.add('show');
+    clearTimeout(this._tt); this._tt = setTimeout(() => this.el.toast.classList.remove('show'), 2400);
+  }
+
+  /* --- События --- */
+  bind(){
+    this.el.grid.addEventListener('click', e => {
+      const a = e.target.closest('a.app-tile'); if (!a) return;
+      e.preventDefault(); this.launch(+a.dataset.index);
+    });
+    this.el.recents.addEventListener('click', e => {
+      const b = e.target.closest('.tb-app'); if (!b) return;
+      this.launch(+b.dataset.index);
+    });
+    this.el.start.addEventListener('click', () => {
+      this.closeFlyouts();
+      this.el.scroll.scrollTop = 0;
+      this.setGreeting();
+      this.el.logo.classList.remove('pulse'); void this.el.logo.offsetWidth; this.el.logo.classList.add('pulse');
+    });
+    this.el.search.addEventListener('click', () => this.openFlyout('search'));
+    this.el.noteBtn.addEventListener('click', () => this.openFlyout('note'));
+
+    this.el.input.addEventListener('input', () => this.renderResults());
+    this.el.input.addEventListener('keydown', e => {
+      if (e.key === 'ArrowDown'){ e.preventDefault(); this.setActive(this.searchIdx + 1); }
+      else if (e.key === 'ArrowUp'){ e.preventDefault(); this.setActive(this.searchIdx - 1); }
+      else if (e.key === 'Enter'){ e.preventDefault();
+        const o = this.searchList[this.searchIdx]; if (o){ this.closeFlyouts(); this.launch(o.i); } }
+    });
+    this.el.results.addEventListener('click', e => {
+      const b = e.target.closest('.res-row'); if (!b) return;
+      this.closeFlyouts(); this.launch(+b.dataset.index);
+    });
+    this.el.results.addEventListener('mouseover', e => {
+      const b = e.target.closest('.res-row'); if (b) this.setActive(+b.dataset.pos);
+    });
+
+    this.el.note.addEventListener('input', () => {
+      this.noteDirty = true; this.setNoteStatus('typing');
+      clearTimeout(this._nt); this._nt = setTimeout(() => this.saveNote(), CONFIG.noteAutosave);
+    });
+
+    document.addEventListener('keydown', e => {
+      const typing = /^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName || '');
+      if (e.key === 'Escape'){ this.closeFlyouts(); }
+      else if (!typing && e.key === '/'){ e.preventDefault(); if (this.state.open !== 'search') this.openFlyout('search'); }
+    });
+    document.addEventListener('pointerdown', e => {
+      if (!this.state.open) return;
+      if (e.target.closest('.flyout,.taskbar')) return;
+      this.closeFlyouts();
+    });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && this.noteDirty) this.saveNote(); });
+  }
+}
+
+new AppController().init();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "unichat2",
+  "version": "1.0.0",
+  "description": "MoonSSS / UniChat2 static web app",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "serve": "python3 serve.py 8000"
+  },
+  "license": "MIT"
+}
